@@ -1,6 +1,6 @@
 Manual E2E Test Cases for Study Group Feature
 
-1 Create Study Group – Valid (Positive, Happy Path)
+1. Create Study Group – Valid (Positive, Happy Path)
 
 Level: E2E Manual
 Steps:  
@@ -18,7 +18,7 @@ Steps:
     Creation date is visible and recent.
     Add to regression: Yes (core user flow)
 
-2 Create Study Group – Name Too Short (Negative)
+2. Create Study Group – Name Too Short (Negative)
 
 Level: E2E Manual
 Steps:  
@@ -35,7 +35,7 @@ Steps:
     Group not created.
     Add to regression: Yes (enforces AC1.a)
 
-3 Create Study Group – Name Too Long (Negative)
+3. Create Study Group – Name Too Long (Negative)
 
 Level: E2E Manual
 Steps:  
@@ -52,7 +52,7 @@ Steps:
     Group not created.
     Add to regression: Yes (AC1.a)
 
-4 Create Study Group – Invalid Subject via UI (Negative)
+4. Create Study Group – Invalid Subject via UI (Negative)
 
 Level: E2E Manual
 Steps:  
@@ -69,7 +69,7 @@ Steps:
     Group not created.
     Add to regression: Yes (AC1.b)  
 
-5 Prevent Duplicate Study Group for Same Subject (Negative)
+5. Prevent Duplicate Study Group for Same Subject (Negative)
 
 Level: E2E Manual
 Steps:  
@@ -84,7 +84,7 @@ Steps:
     Second group not created.
     Add to regression: Yes (AC1 uniqueness)
 
-6 Join Study Group (Positive)
+6. Join Study Group (Positive)
 
 Level: E2E Manual
 Steps:  
@@ -100,7 +100,7 @@ Steps:
     User A appears in group member list.
     Add to regression: Yes (AC2)
 
-7 Join Non-Existent Group (Negative)
+7. Join Non-Existent Group (Negative)
 
 Level: E2E Manual
 Steps:  
@@ -114,7 +114,7 @@ Steps:
     No change in user’s groups.
     Add to regression: Yes (defensive UX)
 
-8 View All Study Groups (Positive)
+8. View All Study Groups (Positive)
 
 Level: E2E Manual
 Steps:  
@@ -128,7 +128,7 @@ Steps:
     All existing groups displayed (name, subject, creation date, member count).
     Add to regression: Yes (AC3)
 
-9 Filter Study Groups by Subject (Positive)
+9. Filter Study Groups by Subject (Positive)
 
 Level: E2E Manual
 Steps:  
@@ -143,7 +143,7 @@ Steps:
     Math/Physics groups hidden.
     Add to regression: Yes (AC3.a)
 
-10 Sort Study Groups by Creation Date (Positive)
+10. Sort Study Groups by Creation Date (Positive)
 
 Level: E2E Manual
 Steps:  
@@ -159,7 +159,7 @@ Steps:
     Newest at top (or bottom) as selected.
     Add to regression: Yes (AC3.b)
 
-11 Leave Study Group (Positive)
+11. Leave Study Group (Positive)
 
 Level: E2E Manual
 Steps:  
@@ -176,7 +176,7 @@ Steps:
     Member count decreases by 1.
     Add to regression: Yes (AC4)
 
-12 Leave Group You Never Joined (Negative)
+12. Leave Group You Never Joined (Negative)
 
 Level: E2E Manual
 Steps:  
@@ -192,7 +192,7 @@ Steps:
         Error: “You are not a member of this group.”
         Add to regression: No (edge case, low risk)
 
-13 Cross-Browser / Responsive Check 
+13. Cross-Browser / Responsive Check 
 
 Level: E2E Manual
 Steps:  

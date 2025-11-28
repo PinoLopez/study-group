@@ -8,7 +8,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Register your repository
+// Register repository
 builder.Services.AddSingleton<IStudyGroupRepository, StudyGroupRepository>();
 
 var app = builder.Build();

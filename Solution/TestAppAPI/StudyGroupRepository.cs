@@ -15,14 +15,13 @@ namespace TestAppAPI
 
         public async Task CreateStudyGroup(StudyGroup studyGroup)
         {
-            // Requirement: Only one Study Group for a single Subject
+            // Only one Study Group for a single Subject
             if (_studyGroups.Values.Any(sg => sg.Subject == studyGroup.Subject))
             {
                 throw new InvalidOperationException($"A study group for subject '{studyGroup.Subject}' already exists.");
             }
 
-            // Note: In a real repo, we wouldn't create a new object here if passing by ref, 
-            // but we are simulating generating an ID.
+            // simulating generating an ID.
             var newGroup = new StudyGroup(
                 studyGroupId: _nextId++,
                 name: studyGroup.Name,
@@ -68,7 +67,7 @@ namespace TestAppAPI
                 return; 
 
             // Add user using the method in StudyGroup.cs
-            // Note: Name is null because we don't have a User Repo in this context
+            // Name is null because we don't have a User Repo in this context
             group.AddUser(new User { Id = userId, Name = "Unknown" }); 
             
             await Task.CompletedTask;

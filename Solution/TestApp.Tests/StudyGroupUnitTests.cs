@@ -41,9 +41,8 @@ namespace TestApp.Tests
         [Test]
         public void Constructor_InvalidSubject_ThrowsArgumentException()
         {
-            // Enum enforces only Math/Chemistry/Physics → no invalid values possible
-            // So this test is less relevant unless Subject is string
-            // We assume enum is used → skip or mark as N/A
+            // Enum enforces only Math/Chemistry/Physics 
+
             Assert.Pass("Subject is enum → validation not needed here");
         }
     }
