@@ -1,0 +1,79 @@
+using System;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using TestApp;
+
+namespace TestAppAPI
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class StudyGroupController : ControllerBase
+    {
+        private readonly IStudyGroupRepository _studyGroupRepository;
+
+        public StudyGroupController(IStudyGroupRepository studyGroupRepository)
+        {
+            _studyGroupRepository = studyGroupRepository;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateStudyGroup([FromBody] StudyGroup studyGroup)
+        {
+            try
+            {
+                await _studyGroupRepository.CreateStudyGroup(studyGroup);
+                return Ok();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetStudyGroups()
+        {
+            var studyGroups = await _studyGroupRepository.GetStudyGroups();
+            return Ok(studyGroups);
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchStudyGroups([FromQuery] string subject)
+        {
+            var studyGroups = await _studyGroupRepository.SearchStudyGroups(subject);
+            return Ok(studyGroups);
+        }
+
+        [HttpPost("{studyGroupId}/join")]
+        public async Task<IActionResult> JoinStudyGroup(int studyGroupId, [FromQuery] int userId)
+        {
+            try
+            {
+                await _studyGroupRepository.JoinStudyGroup(studyGroupId, userId);
+                return Ok();
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpPost("{studyGroupId}/leave")]
+        public async Task<IActionResult> LeaveStudyGroup(int studyGroupId, [FromQuery] int userId)
+        {
+            try
+            {
+                await _studyGroupRepository.LeaveStudyGroup(studyGroupId, userId);
+                return Ok();
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+    }
+}
