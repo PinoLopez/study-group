@@ -45,10 +45,12 @@ namespace TestAppAPI.Tests
                 .Setup(r => r.CreateStudyGroup(It.IsAny<StudyGroup>()))
                 .ThrowsAsync(new InvalidOperationException("Study group for Chemistry already exists"));
 
-            var result = await _controller.CreateStudyGroup(group) as BadRequestObjectResult;
+            var actionResult = await _controller.CreateStudyGroup(group);
+            var result = actionResult as BadRequestObjectResult;
 
             Assert.IsNotNull(result);
-            Assert.That(result.Value.ToString(), Does.Contain("Chemistry"));
+            var message = result!.Value?.ToString() ?? string.Empty;
+            Assert.That(message, Does.Contain("Chemistry"));
         }
 
         [Test]
@@ -59,10 +61,11 @@ namespace TestAppAPI.Tests
                 .Setup(r => r.GetStudyGroups())
                 .ReturnsAsync(groups);
 
-            var result = await _controller.GetStudyGroups() as OkObjectResult;
+            var actionResult = await _controller.GetStudyGroups();
+            var result = actionResult as OkObjectResult;
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(groups, result.Value);
+            Assert.AreEqual(groups, result!.Value);
         }
 
         [Test]
@@ -73,10 +76,13 @@ namespace TestAppAPI.Tests
                 .Setup(r => r.SearchStudyGroups("Physics"))
                 .ReturnsAsync(groups);
 
-            var result = await _controller.SearchStudyGroups("Physics") as OkObjectResult;
+            var actionResult = await _controller.SearchStudyGroups("Physics");
+            var result = actionResult as OkObjectResult;
 
             Assert.IsNotNull(result);
-            Assert.IsNotEmpty((IEnumerable<StudyGroup>)result.Value);
+
+            var value = result!.Value as IEnumerable<StudyGroup> ?? Array.Empty<StudyGroup>();
+            Assert.IsNotEmpty(value);
         }
 
         [Test]
@@ -98,10 +104,12 @@ namespace TestAppAPI.Tests
                 .Setup(r => r.JoinStudyGroup(999, 100))
                 .ThrowsAsync(new ArgumentException("Study group not found"));
 
-            var result = await _controller.JoinStudyGroup(999, 100) as NotFoundObjectResult;
+            var actionResult = await _controller.JoinStudyGroup(999, 100);
+            var result = actionResult as NotFoundObjectResult;
 
             Assert.IsNotNull(result);
-            Assert.That(result.Value.ToString(), Does.Contain("not found"));
+            var message = result!.Value?.ToString() ?? string.Empty;
+            Assert.That(message, Does.Contain("not found"));
         }
 
         [Test]

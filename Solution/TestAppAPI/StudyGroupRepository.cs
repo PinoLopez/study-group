@@ -64,12 +64,11 @@ namespace TestAppAPI
             // Check if user already exists
             var existingUser = group.Users.FirstOrDefault(u => u.Id == userId);
             if (existingUser != null)
-                return; 
+                return;
 
             // Add user using the method in StudyGroup.cs
-            // Name is null because we don't have a User Repo in this context
-            group.AddUser(new User { Id = userId, Name = "Unknown" }); 
-            
+            group.AddUser(new User { Id = userId, Name = "Unknown" });
+
             await Task.CompletedTask;
         }
 
