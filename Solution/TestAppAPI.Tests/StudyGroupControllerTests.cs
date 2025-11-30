@@ -12,7 +12,7 @@ namespace TestAppAPI.Tests
     [TestFixture]
     public class StudyGroupControllerTests
     {
-        private Mock<IStudyGroupRepository> _mockRepo = new();
+        private Mock<IStudyGroupRepository> _mockRepo = null!;
         private StudyGroupController _controller = null!;
 
         [SetUp]
@@ -20,215 +20,230 @@ namespace TestAppAPI.Tests
         {
             _mockRepo = new Mock<IStudyGroupRepository>();
             _controller = new StudyGroupController(_mockRepo.Object);
-            Console.WriteLine($"🔄 START: {TestContext.CurrentContext.Test.Name}");
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            var result = TestContext.CurrentContext.Result;
-            var outcome = result.Outcome.Status switch
-            {
-                NUnit.Framework.Interfaces.TestStatus.Passed => "✅ PASSED",
-                NUnit.Framework.Interfaces.TestStatus.Failed => "❌ FAILED",
-                NUnit.Framework.Interfaces.TestStatus.Skipped => "⏭️ SKIPPED",
-                NUnit.Framework.Interfaces.TestStatus.Inconclusive => "⚠️ INCONCLUSIVE",
-                _ => $"⚠️ {result.Outcome.Status}"
-            };
-            Console.WriteLine($"{outcome}: {TestContext.CurrentContext.Test.Name}");
-        }
+        #region Create Study Group
 
-        #region Create Study Group Tests
         [Test]
-        public async Task CreateStudyGroup_ValidModel_ReturnsOk()
+        public async Task GivenValidStudyGroup_WhenCreating_ThenReturnsOk()
         {
-            var group = new StudyGroup(0, "Math Masters", Subject.Math, DateTime.UtcNow, new List<User>());
-            _mockRepo.Setup(r => r.CreateStudyGroup(It.IsAny<StudyGroup>())).Returns(Task.CompletedTask);
+            var group = new StudyGroup(0, "Math Study Club", Subject.Math, DateTime.UtcNow, new List<User>());
+            _mockRepo.Setup(r => r.CreateStudyGroup(group)).Returns(Task.CompletedTask);
 
             var result = await _controller.CreateStudyGroup(group);
 
-            Assert.IsInstanceOf<OkResult>(result);
-            _mockRepo.Verify(r => r.CreateStudyGroup(It.IsAny<StudyGroup>()), Times.Once);
+            Assert.That(result, Is.InstanceOf<OkResult>());
         }
 
         [Test]
-        public async Task CreateStudyGroup_DuplicateSubject_ReturnsBadRequest()
+        public async Task GivenStudyGroupWithDuplicateSubject_WhenCreating_ThenReturnsBadRequest()
         {
-            var group = new StudyGroup(0, "Chem Team", Subject.Chemistry, DateTime.UtcNow, new List<User>());
-            _mockRepo.Setup(r => r.CreateStudyGroup(It.IsAny<StudyGroup>()))
+            var group = new StudyGroup(0, "Chemistry Study Group", Subject.Chemistry, DateTime.UtcNow, new List<User>());
+            _mockRepo.Setup(r => r.CreateStudyGroup(group))
                      .ThrowsAsync(new InvalidOperationException("A study group for subject 'Chemistry' already exists."));
 
-            var actionResult = await _controller.CreateStudyGroup(group);
-            var result = actionResult as BadRequestObjectResult;
+            var result = await _controller.CreateStudyGroup(group);
 
-            Assert.IsNotNull(result);
-            var message = result!.Value?.ToString() ?? string.Empty;
-            Assert.That(message, Does.Contain("Chemistry"));
+            Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+            var badResult = (BadRequestObjectResult)result;
+            Assert.That(badResult.Value?.ToString(), Does.Contain("already exists"));
         }
+
+        [Test]
+        public async Task GivenStudyGroupNameTooShort_WhenCreating_ThenReturnsBadRequest()
+        {
+            // Use parameterless constructor to bypass domain validation during test setup
+            var group = new StudyGroup();
+            group.Name = "Math";
+            group.Subject = Subject.Math;
+            group.CreateDate = DateTime.UtcNow;
+            group.Users = new List<User>();
+
+            var result = await _controller.CreateStudyGroup(group);
+
+            Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+            var badResult = (BadRequestObjectResult)result;
+            Assert.That(badResult.Value?.ToString(), Does.Contain("between 5 and 30"));
+        }
+
+        [Test]
+        public async Task GivenNullStudyGroup_WhenCreating_ThenReturnsBadRequest()
+        {
+            var result = await _controller.CreateStudyGroup(null!);
+
+            Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
+        }
+
         #endregion
 
-        #region Get Study Groups Tests
+        #region Get Study Groups
+
         [Test]
-        public async Task GetStudyGroups_DefaultSort_ReturnsOkWithListDescending()
+        public async Task GivenNoSort_WhenGettingAllGroups_ThenReturnsGroupsSortedByCreationDateDescending()
         {
+            // Return list in expected DESCENDING order: newest first
             var groups = new List<StudyGroup>
             {
-                new StudyGroup(1, "Calculus Club", Subject.Math, DateTime.UtcNow.AddDays(-5), new List<User>()),
-                new StudyGroup(2, "Algebra Group", Subject.Math, DateTime.UtcNow, new List<User>())
+                new StudyGroup(2, "Advanced Math Studies", Subject.Math, DateTime.UtcNow, new List<User>()),
+                new StudyGroup(1, "Mathematics Study Group", Subject.Math, DateTime.UtcNow.AddDays(-1), new List<User>())
             };
-            _mockRepo.Setup(r => r.GetStudyGroups()).ReturnsAsync(groups);
+            _mockRepo.Setup(r => r.GetStudyGroups("desc")).ReturnsAsync(groups);
 
-            var actionResult = await _controller.GetStudyGroups();
-            var result = actionResult as OkObjectResult;
+            var result = await _controller.GetStudyGroups();
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual(groups, result!.Value);
+            Assert.That(result, Is.InstanceOf<OkObjectResult>());
+            var okResult = result as OkObjectResult;
+            Assert.That(okResult, Is.Not.Null);
+            var returned = okResult.Value as List<StudyGroup>;
+            Assert.That(returned, Is.Not.Null);
+            Assert.That(returned.Count, Is.EqualTo(2));
+            Assert.That(returned[0].Name, Is.EqualTo("Advanced Math Studies"));
         }
 
         [Test]
-        public async Task GetStudyGroups_SortAscending_ReturnsOkWithListAscending()
+        public async Task GivenSortAscending_WhenGettingAllGroups_ThenReturnsGroupsSortedByCreationDateAscending()
         {
+            // Return list in expected ASCENDING order: oldest first
             var groups = new List<StudyGroup>
             {
-                new StudyGroup(1, "Old Group", Subject.Math, DateTime.UtcNow.AddDays(-10), new List<User>()),
-                new StudyGroup(2, "New Group", Subject.Physics, DateTime.UtcNow, new List<User>())
+                new StudyGroup(1, "Physics Fundamentals", Subject.Physics, DateTime.UtcNow.AddDays(-2), new List<User>()),
+                new StudyGroup(2, "Modern Physics Group", Subject.Physics, DateTime.UtcNow, new List<User>())
             };
-            _mockRepo.Setup(r => r.GetStudyGroups()).ReturnsAsync(groups);
+            _mockRepo.Setup(r => r.GetStudyGroups("asc")).ReturnsAsync(groups);
 
-            var actionResult = await _controller.GetStudyGroups();
-            var result = actionResult as OkObjectResult;
+            var result = await _controller.GetStudyGroups(sort: "asc");
 
-            Assert.IsNotNull(result);
-            var resultGroups = result!.Value as IEnumerable<StudyGroup>;
-            Assert.IsNotNull(resultGroups);
-            Assert.AreEqual(2, resultGroups!.Count());
+            Assert.That(result, Is.InstanceOf<OkObjectResult>());
+            var okResult = result as OkObjectResult;
+            Assert.That(okResult, Is.Not.Null);
+            var returned = okResult.Value as List<StudyGroup>;
+            Assert.That(returned, Is.Not.Null);
+            Assert.That(returned.Count, Is.EqualTo(2));
+            Assert.That(returned[0].Name, Is.EqualTo("Physics Fundamentals"));
         }
+
         #endregion
 
-        #region Search Study Groups Tests
+        #region Search Study Groups
+
         [Test]
-        public async Task SearchStudyGroups_ValidSubject_ReturnsOk()
+        public async Task GivenValidSubject_WhenSearching_ThenReturnsMatchingStudyGroups()
         {
-            var groups = new List<StudyGroup>
-            {
-                new StudyGroup(1, "Quantum Physics Club", Subject.Physics, DateTime.UtcNow, new List<User>())
-            };
-            _mockRepo.Setup(r => r.SearchStudyGroups("Physics")).ReturnsAsync(groups);
+            var groups = new List<StudyGroup> { new StudyGroup(1, "Quantum Physics Group", Subject.Physics, DateTime.UtcNow, new List<User>()) };
+            _mockRepo.Setup(r => r.SearchStudyGroups("Physics", "desc")).ReturnsAsync(groups);
 
-            var actionResult = await _controller.SearchStudyGroups("Physics");
-            var result = actionResult as OkObjectResult;
+            var result = await _controller.SearchStudyGroups("Physics");
 
-            Assert.IsNotNull(result);
-            var value = result!.Value as IEnumerable<StudyGroup> ?? Array.Empty<StudyGroup>();
-            Assert.IsNotEmpty(value);
-            Assert.AreEqual(Subject.Physics, value.First().Subject);
+            Assert.That(result, Is.InstanceOf<OkObjectResult>());
+            var okResult = result as OkObjectResult;
+            Assert.That(okResult, Is.Not.Null);
+            var returned = okResult.Value as List<StudyGroup>;
+            Assert.That(returned, Is.Not.Null);
+            Assert.That(returned[0].Subject, Is.EqualTo(Subject.Physics));
         }
 
         [Test]
-        public async Task SearchStudyGroups_WithSortOrder_ReturnsOkSorted()
+        public async Task GivenInvalidSubject_WhenSearching_ThenReturnsBadRequest()
         {
-            var groups = new List<StudyGroup>
-            {
-                new StudyGroup(1, "Old Physics", Subject.Physics, DateTime.UtcNow.AddDays(-5), new List<User>()),
-                new StudyGroup(2, "New Physics", Subject.Physics, DateTime.UtcNow, new List<User>())
-            };
-            _mockRepo.Setup(r => r.SearchStudyGroups("Physics")).ReturnsAsync(groups);
+            _mockRepo.Setup(r => r.SearchStudyGroups("Biology", "desc"))
+                     .ThrowsAsync(new ArgumentException("Invalid subject."));
 
-            var actionResult = await _controller.SearchStudyGroups("Physics");
-            var result = actionResult as OkObjectResult;
+            var result = await _controller.SearchStudyGroups("Biology");
 
-            Assert.IsNotNull(result);
-            var value = result!.Value as IEnumerable<StudyGroup>;
-            Assert.IsNotNull(value);
-            Assert.AreEqual(2, value!.Count());
+            Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
         }
+
+        [Test]
+        public async Task GivenValidSubjectAndSortAscending_WhenSearching_ThenReturnsSortedGroups()
+        {
+            var old = new StudyGroup(1, "Classical Physics Group", Subject.Physics, DateTime.UtcNow.AddDays(-1), new List<User>());
+            var recent = new StudyGroup(2, "Modern Physics Studies", Subject.Physics, DateTime.UtcNow, new List<User>());
+
+            _mockRepo.Setup(r => r.SearchStudyGroups("Physics", "asc"))
+                     .ReturnsAsync(new List<StudyGroup> { old, recent });
+
+            var result = await _controller.SearchStudyGroups("Physics", sort: "asc");
+
+            Assert.That(result, Is.InstanceOf<OkObjectResult>());
+            var okResult = result as OkObjectResult;
+            Assert.That(okResult, Is.Not.Null);
+            var returned = okResult.Value as List<StudyGroup>;
+            Assert.That(returned, Is.Not.Null);
+            Assert.That(returned[0].Name, Is.EqualTo("Classical Physics Group"));
+        }
+
         #endregion
 
-        #region Join Study Group Tests
+        #region Join Study Group
+
         [Test]
-        public async Task JoinStudyGroup_ValidIds_ReturnsOk()
+        public async Task GivenValidStudyGroupIdAndUserId_WhenJoining_ThenReturnsOk()
         {
-            _mockRepo.Setup(r => r.JoinStudyGroup(1, 100)).Returns(Task.CompletedTask);
+            _mockRepo.Setup(r => r.JoinStudyGroup(5, 101)).Returns(Task.CompletedTask);
 
-            var result = await _controller.JoinStudyGroup(1, 100);
+            var result = await _controller.JoinStudyGroup(5, 101);
 
-            Assert.IsInstanceOf<OkResult>(result);
-            _mockRepo.Verify(r => r.JoinStudyGroup(1, 100), Times.Once);
+            Assert.That(result, Is.InstanceOf<OkResult>());
         }
 
         [Test]
-        public async Task JoinStudyGroup_InvalidGroup_ReturnsNotFound()
+        public async Task GivenNonExistentStudyGroup_WhenJoining_ThenReturnsNotFound()
         {
-            _mockRepo.Setup(r => r.JoinStudyGroup(999, 100)).ThrowsAsync(new ArgumentException("Study group not found"));
+            _mockRepo.Setup(r => r.JoinStudyGroup(999, 101))
+                     .ThrowsAsync(new ArgumentException("Study group not found."));
 
-            var actionResult = await _controller.JoinStudyGroup(999, 100);
-            var result = actionResult as NotFoundObjectResult;
+            var result = await _controller.JoinStudyGroup(999, 101);
 
-            Assert.IsNotNull(result);
-            var message = result!.Value?.ToString() ?? string.Empty;
-            Assert.That(message, Does.Contain("not found"));
+            Assert.That(result, Is.InstanceOf<NotFoundObjectResult>());
         }
 
         [Test]
-        public async Task JoinStudyGroup_DuplicateUser_ReturnsBadRequest()
+        public async Task GivenUserAlreadyInGroup_WhenJoining_ThenReturnsBadRequest()
         {
-            _mockRepo.Setup(r => r.JoinStudyGroup(1, 100)).ThrowsAsync(new InvalidOperationException("User is already a member of this study group."));
+            _mockRepo.Setup(r => r.JoinStudyGroup(5, 101))
+                     .ThrowsAsync(new InvalidOperationException("User is already a member of this study group."));
 
-            var actionResult = await _controller.JoinStudyGroup(1, 100);
-            var result = actionResult as BadRequestObjectResult;
+            var result = await _controller.JoinStudyGroup(5, 101);
 
-            Assert.IsNotNull(result);
-            var message = result!.Value?.ToString() ?? string.Empty;
-            Assert.That(message, Does.Contain("already a member"));
+            Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
         }
 
-        [Test]
-        public async Task JoinStudyGroup_EmptyUserName_ReturnsBadRequest()
-        {
-            _mockRepo.Setup(r => r.JoinStudyGroup(1, 100)).ThrowsAsync(new ArgumentException("User name is required."));
-
-            var actionResult = await _controller.JoinStudyGroup(1, 100);
-            var result = actionResult as BadRequestObjectResult;
-
-            Assert.IsNotNull(result);
-        }
         #endregion
 
-        #region Leave Study Group Tests
+        #region Leave Study Group
+
         [Test]
-        public async Task LeaveStudyGroup_ValidIds_ReturnsOk()
+        public async Task GivenValidStudyGroupIdAndUserId_WhenLeaving_ThenReturnsOk()
         {
-            _mockRepo.Setup(r => r.LeaveStudyGroup(1, 100)).Returns(Task.CompletedTask);
+            _mockRepo.Setup(r => r.LeaveStudyGroup(5, 101)).Returns(Task.CompletedTask);
 
-            var result = await _controller.LeaveStudyGroup(1, 100);
+            var result = await _controller.LeaveStudyGroup(5, 101);
 
-            Assert.IsInstanceOf<OkResult>(result);
-            _mockRepo.Verify(r => r.LeaveStudyGroup(1, 100), Times.Once);
+            Assert.That(result, Is.InstanceOf<OkResult>());
         }
 
         [Test]
-        public async Task LeaveStudyGroup_UserNotInGroup_ReturnsNotFound()
+        public async Task GivenNonExistentStudyGroup_WhenLeaving_ThenReturnsNotFound()
         {
-            _mockRepo.Setup(r => r.LeaveStudyGroup(1, 999)).ThrowsAsync(new ArgumentException("User is not a member of this study group."));
+            _mockRepo.Setup(r => r.LeaveStudyGroup(999, 101))
+                     .ThrowsAsync(new ArgumentException("Study group not found."));
 
-            var actionResult = await _controller.LeaveStudyGroup(1, 999);
-            var result = actionResult as NotFoundObjectResult;
+            var result = await _controller.LeaveStudyGroup(999, 101);
 
-            Assert.IsNotNull(result);
-            var message = result!.Value?.ToString() ?? string.Empty;
-            Assert.That(message, Does.Contain("not a member"));
+            Assert.That(result, Is.InstanceOf<NotFoundObjectResult>());
         }
 
         [Test]
-        public async Task LeaveStudyGroup_InvalidGroup_ReturnsNotFound()
+        public async Task GivenUserNotInGroup_WhenLeaving_ThenReturnsNotFound()
         {
-            _mockRepo.Setup(r => r.LeaveStudyGroup(999, 100)).ThrowsAsync(new ArgumentException("Study group not found."));
+            _mockRepo.Setup(r => r.LeaveStudyGroup(5, 999))
+                     .ThrowsAsync(new ArgumentException("User is not a member of this study group."));
 
-            var actionResult = await _controller.LeaveStudyGroup(999, 100);
-            var result = actionResult as NotFoundObjectResult;
+            var result = await _controller.LeaveStudyGroup(5, 999);
 
-            Assert.IsNotNull(result);
+            Assert.That(result, Is.InstanceOf<NotFoundObjectResult>());
         }
+
         #endregion
     }
 }

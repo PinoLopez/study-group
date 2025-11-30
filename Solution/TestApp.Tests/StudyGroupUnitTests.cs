@@ -1,49 +1,126 @@
 using NUnit.Framework;
-using TestApp;
 using System;
+using System.Collections.Generic;
 
 namespace TestApp.Tests
 {
+    [TestFixture]
     public class StudyGroupUnitTests
     {
         [Test]
-        public void Constructor_ValidInputs_CreatesStudyGroupWithCreateDate()
+        public void StudyGroup_Constructor_ValidParameters_CreatesInstance()
         {
-            // Arrange
-            var name = "Math Masters";
-            var subject = Subject.Math;
-            var users = new System.Collections.Generic.List<User>();
-
-            // Act
-            var studyGroup = new StudyGroup(1, name, subject, DateTime.UtcNow, users);
+            // Arrange & Act
+            var studyGroup = new StudyGroup(1, "Math Study Group", Subject.Math, DateTime.Now, new List<User>());
 
             // Assert
-            Assert.AreEqual(name, studyGroup.Name);
-            Assert.AreEqual(subject, studyGroup.Subject);
-            Assert.That(studyGroup.CreateDate, Is.Not.EqualTo(default(DateTime)));
+            Assert.That(studyGroup.StudyGroupId, Is.EqualTo(1));
+            Assert.That(studyGroup.Name, Is.EqualTo("Math Study Group"));
+            Assert.That(studyGroup.Subject, Is.EqualTo(Subject.Math));
+            Assert.That(studyGroup.Users, Is.Not.Null);
+            Assert.That(studyGroup.Users.Count, Is.EqualTo(0));
         }
 
         [Test]
-        public void Constructor_NameTooShort_ThrowsArgumentException()
+        public void StudyGroup_Constructor_NameTooShort_ThrowsException()
         {
-            Assert.Throws<ArgumentException>(() =>
-                new StudyGroup(1, "Math", Subject.Math, DateTime.UtcNow, new()));
+            // Arrange & Act & Assert
+            Assert.Throws<ArgumentException>(() => 
+                new StudyGroup(1, "Math", Subject.Math, DateTime.Now, new List<User>()));
         }
 
         [Test]
-        public void Constructor_NameTooLong_ThrowsArgumentException()
+        public void StudyGroup_Constructor_NameTooLong_ThrowsException()
         {
+            // Arrange & Act & Assert
             var longName = new string('A', 31);
-            Assert.Throws<ArgumentException>(() =>
-                new StudyGroup(1, longName, Subject.Physics, DateTime.UtcNow, new()));
+            Assert.Throws<ArgumentException>(() => 
+                new StudyGroup(1, longName, Subject.Math, DateTime.Now, new List<User>()));
         }
 
         [Test]
-        public void Constructor_InvalidSubject_ThrowsArgumentException()
+        public void StudyGroup_AddUser_ValidUser_AddsUser()
         {
-            // Enum enforces only Math/Chemistry/Physics 
+            // Arrange
+            var studyGroup = new StudyGroup(1, "Math Study Group", Subject.Math, DateTime.Now, new List<User>());
+            var user = new User(1, "John Doe");
 
-            Assert.Pass("Subject is enum → validation not needed here");
+            // Act
+            studyGroup.AddUser(user);
+
+            // Assert
+            Assert.That(studyGroup.Users.Count, Is.EqualTo(1));
+            Assert.That(studyGroup.Users[0].Id, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void StudyGroup_AddUser_DuplicateUser_DoesNotAddDuplicate()
+        {
+            // Arrange
+            var studyGroup = new StudyGroup(1, "Math Study Group", Subject.Math, DateTime.Now, new List<User>());
+            var user = new User(1, "John Doe");
+
+            // Act
+            studyGroup.AddUser(user);
+            studyGroup.AddUser(user); // Try to add same user again
+
+            // Assert
+            Assert.That(studyGroup.Users.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void StudyGroup_RemoveUser_ExistingUser_RemovesUser()
+        {
+            // Arrange
+            var studyGroup = new StudyGroup(1, "Math Study Group", Subject.Math, DateTime.Now, new List<User>());
+            var user = new User(1, "John Doe");
+            studyGroup.AddUser(user);
+
+            // Act
+            studyGroup.RemoveUser(user);
+
+            // Assert
+            Assert.That(studyGroup.Users.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void StudyGroup_RemoveUser_NonExistingUser_DoesNothing()
+        {
+            // Arrange
+            var studyGroup = new StudyGroup(1, "Math Study Group", Subject.Math, DateTime.Now, new List<User>());
+            var user1 = new User(1, "John Doe");
+            var user2 = new User(2, "Jane Smith");
+            studyGroup.AddUser(user1);
+
+            // Act
+            studyGroup.RemoveUser(user2);
+
+            // Assert
+            Assert.That(studyGroup.Users.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void StudyGroup_Constructor_InvalidSubject_ThrowsException()
+        {
+            // Arrange & Act & Assert
+            var exception = Assert.Throws<ArgumentException>(() => 
+            {
+                var invalidSubject = (Subject)999;
+                new StudyGroup(1, "Valid Name Length", invalidSubject, DateTime.Now, new List<User>());
+            });
+            
+            Assert.That(exception.Message, Does.Contain("is not valid"));
+        }
+
+        [Test]
+        public void StudyGroup_Constructor_NullUsers_InitializesEmptyList()
+        {
+            // Arrange & Act
+            var studyGroup = new StudyGroup(1, "Math Study Group", Subject.Math, DateTime.Now, null);
+
+            // Assert
+            Assert.That(studyGroup.Users, Is.Not.Null);
+            Assert.That(studyGroup.Users.Count, Is.EqualTo(0));
         }
     }
 }

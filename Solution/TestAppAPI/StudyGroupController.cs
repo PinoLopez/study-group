@@ -1,5 +1,5 @@
-// File: ~/Documents/webapp/Solution/TestAppAPI/StudyGroupController.cs
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 using TestApp;
 
@@ -17,14 +17,23 @@ namespace TestAppAPI
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateStudyGroup([FromBody] StudyGroup studyGroup)
+        public async Task<IActionResult> CreateStudyGroup(StudyGroup studyGroup)
         {
+            if (studyGroup == null)
+                return BadRequest("Study group is required.");
+
+            if (string.IsNullOrWhiteSpace(studyGroup.Name))
+                return BadRequest("Study group name cannot be empty.");
+
+            if (studyGroup.Name.Length < 5 || studyGroup.Name.Length > 30)
+                return BadRequest("Study group name must be between 5 and 30 characters.");
+
             try
             {
                 await _studyGroupRepository.CreateStudyGroup(studyGroup);
                 return Ok();
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
             {
                 return BadRequest(ex.Message);
             }
@@ -35,19 +44,22 @@ namespace TestAppAPI
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetStudyGroups()
+        public async Task<IActionResult> GetStudyGroups([FromQuery] string sort = "desc")
         {
-            var studyGroups = await _studyGroupRepository.GetStudyGroups();
-            return Ok(studyGroups);
+            var groups = await _studyGroupRepository.GetStudyGroups(sort);
+            return Ok(groups);
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchStudyGroups(string subject)
+        public async Task<IActionResult> SearchStudyGroups([FromQuery] string subject, [FromQuery] string sort = "desc")
         {
+            if (string.IsNullOrWhiteSpace(subject))
+                return BadRequest("Subject is required.");
+
             try
             {
-                var studyGroups = await _studyGroupRepository.SearchStudyGroups(subject);
-                return Ok(studyGroups);
+                var groups = await _studyGroupRepository.SearchStudyGroups(subject, sort);
+                return Ok(groups);
             }
             catch (ArgumentException ex)
             {
@@ -56,42 +68,34 @@ namespace TestAppAPI
         }
 
         [HttpPost("join")]
-        public async Task<IActionResult> JoinStudyGroup(int studyGroupId, int userId)
+        public async Task<IActionResult> JoinStudyGroup([FromQuery] int studyGroupId, [FromQuery] int userId)
         {
             try
             {
                 await _studyGroupRepository.JoinStudyGroup(studyGroupId, userId);
                 return Ok();
             }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (ArgumentException ex) when (ex.Message.Contains("not found") || ex.Message.Contains("not a member"))
+            catch (ArgumentException ex)
             {
                 return NotFound(ex.Message);
             }
-            catch (ArgumentException ex)
+            catch (InvalidOperationException ex)
             {
                 return BadRequest(ex.Message);
             }
         }
 
         [HttpPost("leave")]
-        public async Task<IActionResult> LeaveStudyGroup(int studyGroupId, int userId)
+        public async Task<IActionResult> LeaveStudyGroup([FromQuery] int studyGroupId, [FromQuery] int userId)
         {
             try
             {
                 await _studyGroupRepository.LeaveStudyGroup(studyGroupId, userId);
                 return Ok();
             }
-            catch (ArgumentException ex) when (ex.Message.Contains("not found") || ex.Message.Contains("not a member"))
-            {
-                return NotFound(ex.Message);
-            }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return NotFound(ex.Message);
             }
         }
     }
