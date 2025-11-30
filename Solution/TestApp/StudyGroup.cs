@@ -1,74 +1,50 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace TestApp;
-
-public class StudyGroup
+namespace TestApp
 {
-    private static readonly HashSet<Subject> ValidSubjects = 
-        new() { Subject.Math, Subject.Chemistry, Subject.Physics };
-
-    public StudyGroup(int studyGroupId, string name, Subject subject, DateTime createDate, List<User> users)
+    public class StudyGroup
     {
-        // Validation Logic
-        if (string.IsNullOrWhiteSpace(name) || name.Length < 5 || name.Length > 30)
+        public int StudyGroupId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public Subject Subject { get; set; }
+        public DateTime CreateDate { get; set; }
+        public List<User> Users { get; private set; } = new List<User>();
+
+        // Validation in constructor (per PDF note)
+        public StudyGroup() { }  // For EF
+
+        public StudyGroup(int studyGroupId, string name, Subject subject, DateTime createDate, List<User>? users = null)
         {
-            throw new ArgumentException("Name must be between 5 and 30 characters.");
+            if (string.IsNullOrWhiteSpace(name) || name.Length < 5 || name.Length > 30)
+                throw new ArgumentException("Name must be between 5 and 30 characters.", nameof(name));
+
+            if (!Enum.IsDefined(typeof(Subject), subject))
+                throw new ArgumentException("Invalid subject. Must be Math, Chemistry, or Physics.", nameof(subject));
+
+            StudyGroupId = studyGroupId;
+            Name = name;
+            Subject = subject;
+            CreateDate = createDate;
+            Users = users ?? new List<User>();
         }
-        
-        if (!ValidSubjects.Contains(subject))
+
+        public void AddUser(User user)
         {
-            throw new ArgumentException($"Subject must be one of: {string.Join(", ", ValidSubjects)}");
+            if (user != null && !Users.Contains(user))
+                Users.Add(user);
         }
 
-        StudyGroupId = studyGroupId;
-        Name = name;
-        Subject = subject;
-        CreateDate = createDate;
-        Users = users ?? new List<User>();
-    }
-
-    public int StudyGroupId { get; }
-    public string Name { get; }
-    public Subject Subject { get; }
-    public DateTime CreateDate { get; }
-    public IReadOnlyList<User> Users { get; private set; }
-
-    public void AddUser(User user)
-    {
-        if (user == null) throw new ArgumentNullException(nameof(user));
-        
-        var newUsers = Users.ToList();
-        if (!newUsers.Any(u => u.Id == user.Id))
+        public void RemoveUser(User user)
         {
-            newUsers.Add(user);
-            Users = newUsers.AsReadOnly();
+            Users.Remove(user);
         }
     }
 
-    public void RemoveUser(User user)
+    public enum Subject
     {
-        if (user == null) throw new ArgumentNullException(nameof(user));
-        
-        var newUsers = Users.ToList();
-        var userToRemove = newUsers.FirstOrDefault(u => u.Id == user.Id);
-        if (userToRemove != null)
-        {
-            newUsers.Remove(userToRemove);
-            Users = newUsers.AsReadOnly();
-        }
+        Math,
+        Chemistry,
+        Physics
     }
-
-    public StudyGroup WithUsers(List<User> newUsers)
-    {
-        return new StudyGroup(StudyGroupId, Name, Subject, CreateDate, newUsers);
-    }
-}
-
-public enum Subject
-{
-    Math,
-    Chemistry,
-    Physics
 }

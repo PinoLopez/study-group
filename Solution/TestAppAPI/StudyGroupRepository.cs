@@ -1,5 +1,5 @@
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,96 +9,67 @@ namespace TestAppAPI
 {
     public class StudyGroupRepository : IStudyGroupRepository
     {
-        // In-memory storage simulating DB
-        private readonly ConcurrentDictionary<int, StudyGroup> _studyGroups = new();
-        private int _nextId = 1;
+        private readonly AppDbContext _context;
+
+        public StudyGroupRepository(AppDbContext context)
+        {
+            _context = context;
+        }
 
         public async Task CreateStudyGroup(StudyGroup studyGroup)
         {
-            // Acceptance Criteria 1: Only one Study Group for a single Subject
-            if (_studyGroups.Values.Any(sg => sg.Subject == studyGroup.Subject))
+            if (await _context.StudyGroups.AnyAsync(s => s.Subject == studyGroup.Subject))
             {
                 throw new InvalidOperationException($"A study group for subject '{studyGroup.Subject}' already exists.");
             }
 
-            // Simulating generating an ID
-            var newGroup = new StudyGroup(
-                studyGroupId: _nextId++,
-                name: studyGroup.Name,
-                subject: studyGroup.Subject,
-                createDate: DateTime.UtcNow,
-                users: new List<User>()
-            );
-
-            _studyGroups[newGroup.StudyGroupId] = newGroup;
-            await Task.CompletedTask;
+            studyGroup.CreateDate = DateTime.UtcNow;
+            _context.StudyGroups.Add(studyGroup);
+            await _context.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<StudyGroup>> GetStudyGroups(string sortOrder = "desc")
+        public async Task<IEnumerable<StudyGroup>> GetStudyGroups()
         {
-            // Acceptance Criteria 3b: Sort by creation date (most recent or oldest)
-            var groups = sortOrder?.ToLower() == "asc" 
-                ? _studyGroups.Values.OrderBy(x => x.CreateDate).ToList()
-                : _studyGroups.Values.OrderByDescending(x => x.CreateDate).ToList();
-                
-            return await Task.FromResult(groups);
+            return await _context.StudyGroups
+                .Include(s => s.Users)
+                .OrderByDescending(s => s.CreateDate)
+                .ToListAsync();
         }
 
-        public async Task<IEnumerable<StudyGroup>> SearchStudyGroups(string subject, string sortOrder = "desc")
+        public async Task<IEnumerable<StudyGroup>> SearchStudyGroups(string subject)
         {
-            // Acceptance Criteria 3a: Filter by subject
-            if (string.IsNullOrWhiteSpace(subject))
+            if (!Enum.TryParse<Subject>(subject, true, out var parsedSubject))
             {
-                return await GetStudyGroups(sortOrder);
+                throw new ArgumentException("Invalid subject.");
             }
 
-            if (!Enum.TryParse<Subject>(subject, true, out var subjectEnum))
-            {
-                return new List<StudyGroup>();
-            }
-
-            var groups = _studyGroups.Values
-                .Where(sg => sg.Subject == subjectEnum);
-
-            // Acceptance Criteria 3b: Sort by creation date
-            var sortedGroups = sortOrder?.ToLower() == "asc"
-                ? groups.OrderBy(x => x.CreateDate).ToList()
-                : groups.OrderByDescending(x => x.CreateDate).ToList();
-
-            return await Task.FromResult(sortedGroups);
+            return await _context.StudyGroups
+                .Where(s => s.Subject == parsedSubject)
+                .Include(s => s.Users)
+                .OrderByDescending(s => s.CreateDate)
+                .ToListAsync();
         }
 
-        public async Task JoinStudyGroup(int studyGroupId, int userId, string userName)
+        public async Task JoinStudyGroup(int studyGroupId, int userId)
         {
-            // Acceptance Criteria 2: Users can join Study Groups
-            if (!_studyGroups.TryGetValue(studyGroupId, out var group))
-                throw new ArgumentException("Study group not found.", nameof(studyGroupId));
+            var group = await _context.StudyGroups.Include(s => s.Users).FirstOrDefaultAsync(s => s.StudyGroupId == studyGroupId);
+            var user = await _context.Users.FindAsync(userId);
 
-            if (string.IsNullOrWhiteSpace(userName))
-                throw new ArgumentException("User name is required.", nameof(userName));
+            if (group == null || user == null) throw new KeyNotFoundException();
 
-            // Check if user already exists in the group
-            var existingUser = group.Users.FirstOrDefault(u => u.Id == userId);
-            if (existingUser != null)
-                throw new InvalidOperationException("User is already a member of this study group.");
-
-            // Add user with proper information
-            group.AddUser(new User { Id = userId, Name = userName });
-            await Task.CompletedTask;
+            group.AddUser(user);
+            await _context.SaveChangesAsync();
         }
 
         public async Task LeaveStudyGroup(int studyGroupId, int userId)
         {
-            // Acceptance Criteria 4: Users can leave Study Groups
-            if (!_studyGroups.TryGetValue(studyGroupId, out var group))
-                throw new ArgumentException("Study group not found.", nameof(studyGroupId));
+            var group = await _context.StudyGroups.Include(s => s.Users).FirstOrDefaultAsync(s => s.StudyGroupId == studyGroupId);
+            var user = await _context.Users.FindAsync(userId);
 
-            var userToRemove = group.Users.FirstOrDefault(u => u.Id == userId);
-            if (userToRemove == null)
-                throw new ArgumentException("User is not a member of this study group.", nameof(userId));
+            if (group == null || user == null) throw new KeyNotFoundException();
 
-            group.RemoveUser(userToRemove);
-            await Task.CompletedTask;
+            group.RemoveUser(user);
+            await _context.SaveChangesAsync();
         }
     }
 }
