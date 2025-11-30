@@ -7,23 +7,26 @@ namespace TestApp.Tests
     [TestFixture]
     public class StudyGroupUnitTests
     {
-        [Test(Description = "Creates a StudyGroup with valid parameters and verifies all fields.")]
+        [Test(Description = "AC 1: Verifies valid StudyGroup creation with correct property assignment.")]
         public void StudyGroup_Constructor_ValidParameters_CreatesInstance()
         {
             TestContext.WriteLine("Creating StudyGroup with valid, non-null parameters...");
 
-            var studyGroup = new StudyGroup(1, "Math Study Group", Subject.Math, DateTime.Now, new List<User>());
+            // AC 1c: Checks for CreateDate recording
+            var creationTime = DateTime.UtcNow.Date;
+            var studyGroup = new StudyGroup(1, "Math Study Group", Subject.Math, creationTime, new List<User>());
 
             TestContext.WriteLine($"Created StudyGroup: ID={studyGroup.StudyGroupId}, Name={studyGroup.Name}, Subject={studyGroup.Subject}, Users={studyGroup.Users.Count}");
 
             Assert.That(studyGroup.StudyGroupId, Is.EqualTo(1));
             Assert.That(studyGroup.Name, Is.EqualTo("Math Study Group"));
             Assert.That(studyGroup.Subject, Is.EqualTo(Subject.Math));
+            Assert.That(studyGroup.CreateDate.Date, Is.EqualTo(creationTime)); // AC 1c check
             Assert.That(studyGroup.Users, Is.Not.Null);
             Assert.That(studyGroup.Users.Count, Is.EqualTo(0));
         }
 
-        [Test(Description = "Ensures constructor throws exception when name is too short.")]
+        [Test(Description = "AC 1a: Ensures constructor throws ArgumentException when name is too short (less than 5 chars).")]
         public void StudyGroup_Constructor_NameTooShort_ThrowsException()
         {
             TestContext.WriteLine("Testing constructor with name too short (\"Math\")...");
@@ -35,7 +38,7 @@ namespace TestApp.Tests
             TestContext.WriteLine("Exception was correctly thrown for short name.");
         }
 
-        [Test(Description = "Ensures constructor throws exception when name is too long.")]
+        [Test(Description = "AC 1a: Ensures constructor throws ArgumentException when name is too long (over 30 chars).")]
         public void StudyGroup_Constructor_NameTooLong_ThrowsException()
         {
             var longName = new string('A', 31);
@@ -48,13 +51,13 @@ namespace TestApp.Tests
             TestContext.WriteLine("Exception was correctly thrown for long name.");
         }
 
-        [Test(Description = "Adds a valid user to the StudyGroup.")]
+        [Test(Description = "AC 2: Adds a valid user to the StudyGroup.")]
         public void StudyGroup_AddUser_ValidUser_AddsUser()
         {
             var studyGroup = new StudyGroup(1, "Math Study Group", Subject.Math, DateTime.Now, new List<User>());
-            var user = new User(1, "John Doe");
+            var user = new User(1, "Miguel Perez");
 
-            TestContext.WriteLine("Adding user John Doe (ID=1) to study group...");
+            TestContext.WriteLine("Adding user Miguel Perez (ID=1) to study group...");
 
             studyGroup.AddUser(user);
 
@@ -64,11 +67,11 @@ namespace TestApp.Tests
             Assert.That(studyGroup.Users[0].Id, Is.EqualTo(1));
         }
 
-        [Test(Description = "Ensures duplicate users are not added to StudyGroup.")]
+        [Test(Description = "AC 2: Ensures duplicate users (same ID) are not added to StudyGroup.")]
         public void StudyGroup_AddUser_DuplicateUser_DoesNotAddDuplicate()
         {
             var studyGroup = new StudyGroup(1, "Math Study Group", Subject.Math, DateTime.Now, new List<User>());
-            var user = new User(1, "John Doe");
+            var user = new User(1, "Miguel Perez");
 
             TestContext.WriteLine("Adding same user twice to study group...");
 
@@ -80,14 +83,14 @@ namespace TestApp.Tests
             Assert.That(studyGroup.Users.Count, Is.EqualTo(1));
         }
 
-        [Test(Description = "Removes an existing user from StudyGroup.")]
+        [Test(Description = "AC 4: Removes an existing user from StudyGroup.")]
         public void StudyGroup_RemoveUser_ExistingUser_RemovesUser()
         {
             var studyGroup = new StudyGroup(1, "Math Study Group", Subject.Math, DateTime.Now, new List<User>());
-            var user = new User(1, "John Doe");
+            var user = new User(1, "Miguel Perez");
             studyGroup.AddUser(user);
 
-            TestContext.WriteLine("Removing existing user John Doe...");
+            TestContext.WriteLine("Removing existing user Miguel Perez...");
 
             studyGroup.RemoveUser(user);
 
@@ -96,15 +99,15 @@ namespace TestApp.Tests
             Assert.That(studyGroup.Users.Count, Is.EqualTo(0));
         }
 
-        [Test(Description = "Ensures that removing non-existing users has no effect.")]
+        [Test(Description = "AC 4: Ensures removing a non-existing user does nothing.")]
         public void StudyGroup_RemoveUser_NonExistingUser_DoesNothing()
         {
             var studyGroup = new StudyGroup(1, "Math Study Group", Subject.Math, DateTime.Now, new List<User>());
-            var user1 = new User(1, "John Doe");
-            var user2 = new User(2, "Jane Smith");
+            var user1 = new User(1, "Miguel Perez");
+            var user2 = new User(2, "Manuel Pino");
             studyGroup.AddUser(user1);
 
-            TestContext.WriteLine("Attempting to remove non-existing user Jane Smith...");
+            TestContext.WriteLine("Attempting to remove non-existing user Manuel Pino...");
 
             studyGroup.RemoveUser(user2);
 
@@ -113,7 +116,7 @@ namespace TestApp.Tests
             Assert.That(studyGroup.Users.Count, Is.EqualTo(1));
         }
 
-        [Test(Description = "Constructor should reject invalid Subject enum values.")]
+        [Test(Description = "AC 1b: Constructor rejects invalid Subject enum values.")]
         public void StudyGroup_Constructor_InvalidSubject_ThrowsException()
         {
             TestContext.WriteLine("Testing constructor with invalid subject enum value...");
@@ -129,7 +132,7 @@ namespace TestApp.Tests
             Assert.That(exception.Message, Does.Contain("is not valid"));
         }
 
-        [Test(Description = "Passing null user list should initialize an empty list automatically.")]
+        [Test(Description = "Regression: Ensures a null user list initializes an empty list.")]
         public void StudyGroup_Constructor_NullUsers_InitializesEmptyList()
         {
             TestContext.WriteLine("Testing constructor with null user list...");
