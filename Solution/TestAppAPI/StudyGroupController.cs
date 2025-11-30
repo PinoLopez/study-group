@@ -35,26 +35,40 @@ namespace TestAppAPI
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetStudyGroups()
+        public async Task<IActionResult> GetStudyGroups([FromQuery] string sortOrder = "desc")
         {
-            var studyGroups = await _studyGroupRepository.GetStudyGroups();
+            // Acceptance Criteria 3b: Allow sorting by creation date
+            var studyGroups = await _studyGroupRepository.GetStudyGroups(sortOrder);
             return Ok(studyGroups);
         }
 
         [HttpGet("search")]
-        public async Task<IActionResult> SearchStudyGroups([FromQuery] string subject)
+        public async Task<IActionResult> SearchStudyGroups([FromQuery] string subject, [FromQuery] string sortOrder = "desc")
         {
-            var studyGroups = await _studyGroupRepository.SearchStudyGroups(subject);
+            // Acceptance Criteria 3a: Filter by subject
+            // Acceptance Criteria 3b: Sort results
+            var studyGroups = await _studyGroupRepository.SearchStudyGroups(subject, sortOrder);
             return Ok(studyGroups);
         }
 
         [HttpPost("{studyGroupId}/join")]
-        public async Task<IActionResult> JoinStudyGroup(int studyGroupId, [FromQuery] int userId)
+        public async Task<IActionResult> JoinStudyGroup(int studyGroupId, [FromQuery] int userId, [FromQuery] string userName)
         {
+            // Validate userName before calling repository
+            if (string.IsNullOrWhiteSpace(userName))
+            {
+                return BadRequest("User name is required.");
+            }
+
             try
             {
-                await _studyGroupRepository.JoinStudyGroup(studyGroupId, userId);
+                // Acceptance Criteria 2: Users can join Study Groups
+                await _studyGroupRepository.JoinStudyGroup(studyGroupId, userId, userName);
                 return Ok();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (ArgumentException ex)
             {
@@ -67,6 +81,7 @@ namespace TestAppAPI
         {
             try
             {
+                // Acceptance Criteria 4: Users can leave Study Groups
                 await _studyGroupRepository.LeaveStudyGroup(studyGroupId, userId);
                 return Ok();
             }
