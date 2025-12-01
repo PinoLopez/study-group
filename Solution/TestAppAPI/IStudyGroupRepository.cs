@@ -1,4 +1,3 @@
-// TestAppAPI/IStudyGroupRepository.cs
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TestApp;

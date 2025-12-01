@@ -24,16 +24,13 @@ namespace TestAppAPI.Tests
         }
 
         #region Create Study Group
-
         [Test(Description = "AC 1: Given valid StudyGroup, returns 200 Ok on creation.")]
         public async Task GivenValidStudyGroup_WhenCreating_ThenReturnsOk()
         {
             TestContext.WriteLine("Test AC 1: Attempting to create a valid Study Group (Math Study Club).");
             var group = new StudyGroup(0, "Math Study Club", Subject.Math, DateTime.UtcNow, new List<User>());
             _mockRepo.Setup(r => r.CreateStudyGroup(group)).Returns(Task.CompletedTask);
-
             var result = await _controller.CreateStudyGroup(group);
-
             Assert.That(result, Is.InstanceOf<OkResult>());
             TestContext.WriteLine("Result: Controller returned 200 Ok, confirming successful creation.");
         }
@@ -45,9 +42,7 @@ namespace TestAppAPI.Tests
             var group = new StudyGroup(0, "Chemistry Study Group", Subject.Chemistry, DateTime.UtcNow, new List<User>());
             _mockRepo.Setup(r => r.CreateStudyGroup(group))
                      .ThrowsAsync(new InvalidOperationException("A study group for subject 'Chemistry' already exists."));
-
             var result = await _controller.CreateStudyGroup(group);
-
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
             var badResult = (BadRequestObjectResult)result!;
             Assert.That(badResult.Value!.ToString(), Does.Contain("already exists"));
@@ -59,12 +54,9 @@ namespace TestAppAPI.Tests
         {
             TestContext.WriteLine("Test AC 1a: Attempting to create a Study Group with a name too short ('Short').");
             var group = new StudyGroup(0, "Short", Subject.Math, DateTime.UtcNow, new List<User>());
-
             _mockRepo.Setup(r => r.CreateStudyGroup(It.IsAny<StudyGroup>()))
                      .ThrowsAsync(new ArgumentException("Study group name must be between 5 and 30 characters.", "name"));
-
             var result = await _controller.CreateStudyGroup(group);
-
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
             var badResult = (BadRequestObjectResult)result!;
             Assert.That(badResult.Value!.ToString(), Does.Contain("between 5 and 30"));
@@ -76,15 +68,12 @@ namespace TestAppAPI.Tests
         {
             TestContext.WriteLine("Test General: Attempting to create a Study Group with a null request body.");
             var result = await _controller.CreateStudyGroup(null!);
-
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
             TestContext.WriteLine("Result: Controller returned 400 Bad Request. Null input successfully handled.");
         }
-
         #endregion
 
         #region Get Study Groups
-
         [Test(Description = "AC 3: Given no sort parameter, returns groups sorted by CreateDate DESC (newest first).")]
         public async Task GivenNoSort_WhenGettingAllGroups_ThenReturnsGroupsSortedByCreationDateDescending()
         {
@@ -95,9 +84,7 @@ namespace TestAppAPI.Tests
                 new StudyGroup(1, "Mathematics Study Group", Subject.Math, DateTime.UtcNow.AddDays(-1), new List<User>())
             };
             _mockRepo.Setup(r => r.GetStudyGroups("desc")).ReturnsAsync(groups);
-
             var result = await _controller.GetStudyGroups();
-
             Assert.That(result, Is.InstanceOf<OkObjectResult>());
             var okResult = result as OkObjectResult;
             var returned = okResult!.Value as List<StudyGroup>;
@@ -115,29 +102,23 @@ namespace TestAppAPI.Tests
                 new StudyGroup(2, "Modern Physics Group", Subject.Physics, DateTime.UtcNow, new List<User>())
             };
             _mockRepo.Setup(r => r.GetStudyGroups("asc")).ReturnsAsync(groups);
-
             var result = await _controller.GetStudyGroups(sort: "asc");
-
             Assert.That(result, Is.InstanceOf<OkObjectResult>());
             var okResult = result as OkObjectResult;
             var returned = okResult!.Value as List<StudyGroup>;
             Assert.That(returned![0].Name, Is.EqualTo("Physics Fundamentals"));
             TestContext.WriteLine($"Result: Controller returned 200 Ok. First group is '{returned[0].Name}', confirming ASC order.");
         }
-
         #endregion
 
         #region Search Study Groups
-
         [Test(Description = "AC 3a: Given valid subject string, returns matching study groups.")]
         public async Task GivenValidSubject_WhenSearching_ThenReturnsMatchingStudyGroups()
         {
             TestContext.WriteLine("Test AC 3a: Searching for groups by valid subject 'Physics'.");
             var groups = new List<StudyGroup> { new StudyGroup(1, "Quantum Physics Group", Subject.Physics, DateTime.UtcNow, new List<User>()) };
             _mockRepo.Setup(r => r.SearchStudyGroups("Physics", "desc")).ReturnsAsync(groups);
-
             var result = await _controller.SearchStudyGroups("Physics");
-
             Assert.That(result, Is.InstanceOf<OkObjectResult>());
             var okResult = result as OkObjectResult;
             var returned = okResult!.Value as List<StudyGroup>;
@@ -151,9 +132,7 @@ namespace TestAppAPI.Tests
             TestContext.WriteLine("Test AC 3a: Searching for groups by invalid subject 'Biology'.");
             _mockRepo.Setup(r => r.SearchStudyGroups("Biology", "desc"))
                      .ThrowsAsync(new ArgumentException("Invalid subject."));
-
             var result = await _controller.SearchStudyGroups("Biology");
-
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
             TestContext.WriteLine("Result: Controller returned 400 Bad Request. Invalid subject rejected.");
         }
@@ -164,31 +143,24 @@ namespace TestAppAPI.Tests
             TestContext.WriteLine("Test AC 3a & 3b: Searching by subject 'Physics' and sorting ASC.");
             var old = new StudyGroup(1, "Classical Physics Group", Subject.Physics, DateTime.UtcNow.AddDays(-1), new List<User>());
             var recent = new StudyGroup(2, "Modern Physics Studies", Subject.Physics, DateTime.UtcNow, new List<User>());
-
             _mockRepo.Setup(r => r.SearchStudyGroups("Physics", "asc"))
                      .ReturnsAsync(new List<StudyGroup> { old, recent });
-
             var result = await _controller.SearchStudyGroups("Physics", sort: "asc");
-
             Assert.That(result, Is.InstanceOf<OkObjectResult>());
             var okResult = result as OkObjectResult;
             var returned = okResult!.Value as List<StudyGroup>;
             Assert.That(returned![0].Name, Is.EqualTo("Classical Physics Group"));
             TestContext.WriteLine("Result: Controller returned 200 Ok with filtered and ASC sorted groups.");
         }
-
         #endregion
 
         #region Join Study Group
-
         [Test(Description = "AC 2: Given valid IDs, returns 200 Ok on successful join.")]
         public async Task GivenValidStudyGroupIdAndUserId_WhenJoining_ThenReturnsOk()
         {
             TestContext.WriteLine("Test AC 2: Attempting to join StudyGroup 5 with User 101.");
             _mockRepo.Setup(r => r.JoinStudyGroup(5, 101)).Returns(Task.CompletedTask);
-
             var result = await _controller.JoinStudyGroup(5, 101);
-
             Assert.That(result, Is.InstanceOf<OkResult>());
             TestContext.WriteLine("Result: Controller returned 200 Ok, confirming successful join.");
         }
@@ -199,9 +171,7 @@ namespace TestAppAPI.Tests
             TestContext.WriteLine("Test AC 2: Attempting to join a non-existent StudyGroup (ID 999).");
             _mockRepo.Setup(r => r.JoinStudyGroup(999, 101))
                      .ThrowsAsync(new ArgumentException("Study group not found."));
-
             var result = await _controller.JoinStudyGroup(999, 101);
-
             Assert.That(result, Is.InstanceOf<NotFoundObjectResult>());
             TestContext.WriteLine("Result: Controller returned 404 Not Found, as expected.");
         }
@@ -212,25 +182,19 @@ namespace TestAppAPI.Tests
             TestContext.WriteLine("Test AC 2: Attempting to join a StudyGroup when the user is already a member.");
             _mockRepo.Setup(r => r.JoinStudyGroup(5, 101))
                      .ThrowsAsync(new InvalidOperationException("User is already a member of this study group."));
-
             var result = await _controller.JoinStudyGroup(5, 101);
-
             Assert.That(result, Is.InstanceOf<BadRequestObjectResult>());
             TestContext.WriteLine("Result: Controller returned 400 Bad Request. Duplicate join prevented.");
         }
-
         #endregion
 
         #region Leave Study Group
-
         [Test(Description = "AC 4: Given valid IDs, returns 200 Ok on successful leave.")]
         public async Task GivenValidStudyGroupIdAndUserId_WhenLeaving_ThenReturnsOk()
         {
             TestContext.WriteLine("Test AC 4: Attempting to leave StudyGroup 5 with User 101.");
             _mockRepo.Setup(r => r.LeaveStudyGroup(5, 101)).Returns(Task.CompletedTask);
-
             var result = await _controller.LeaveStudyGroup(5, 101);
-
             Assert.That(result, Is.InstanceOf<OkResult>());
             TestContext.WriteLine("Result: Controller returned 200 Ok, confirming successful leave.");
         }
@@ -241,9 +205,7 @@ namespace TestAppAPI.Tests
             TestContext.WriteLine("Test AC 4: Attempting to leave a non-existent StudyGroup (ID 999).");
             _mockRepo.Setup(r => r.LeaveStudyGroup(999, 101))
                      .ThrowsAsync(new ArgumentException("Study group not found."));
-
             var result = await _controller.LeaveStudyGroup(999, 101);
-
             Assert.That(result, Is.InstanceOf<NotFoundObjectResult>());
             TestContext.WriteLine("Result: Controller returned 404 Not Found, as expected.");
         }
@@ -254,13 +216,10 @@ namespace TestAppAPI.Tests
             TestContext.WriteLine("Test AC 4: Attempting to leave a StudyGroup when the user is not a member (User ID 999).");
             _mockRepo.Setup(r => r.LeaveStudyGroup(5, 999))
                      .ThrowsAsync(new ArgumentException("User is not a member of this study group."));
-
             var result = await _controller.LeaveStudyGroup(5, 999);
-
             Assert.That(result, Is.InstanceOf<NotFoundObjectResult>());
             TestContext.WriteLine("Result: Controller returned 404 Not Found, as the user was not a member.");
         }
-
         #endregion
     }
 }

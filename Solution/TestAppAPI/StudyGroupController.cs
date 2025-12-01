@@ -22,12 +22,6 @@ namespace TestAppAPI
             if (studyGroup == null)
                 return BadRequest("Study group is required.");
 
-            if (string.IsNullOrWhiteSpace(studyGroup.Name))
-                return BadRequest("Study group name cannot be empty.");
-
-            if (studyGroup.Name.Length < 5 || studyGroup.Name.Length > 30)
-                return BadRequest("Study group name must be between 5 and 30 characters.");
-
             try
             {
                 await _studyGroupRepository.CreateStudyGroup(studyGroup);

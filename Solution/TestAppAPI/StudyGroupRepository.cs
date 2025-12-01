@@ -65,7 +65,7 @@ namespace TestAppAPI
             var group = await _context.StudyGroups
                 .Include(s => s.Users)
                 .FirstOrDefaultAsync(g => g.StudyGroupId == studyGroupId);
-                
+            
             var user = await _context.Users
                 .Include(u => u.StudyGroups)
                 .FirstOrDefaultAsync(u => u.Id == userId);
@@ -84,7 +84,7 @@ namespace TestAppAPI
             var group = await _context.StudyGroups
                 .Include(s => s.Users)
                 .FirstOrDefaultAsync(g => g.StudyGroupId == studyGroupId);
-                
+            
             var user = await _context.Users
                 .Include(u => u.StudyGroups)
                 .FirstOrDefaultAsync(u => u.Id == userId);
