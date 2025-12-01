@@ -12,7 +12,7 @@ using TestAppAPI;
 namespace TestAppAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251130091152_InitialCreate")]
+    [Migration("20251201152653_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

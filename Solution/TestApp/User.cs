@@ -4,31 +4,17 @@ namespace TestApp
 {
     public class User
     {
-        public User()
+        protected User() { }
+
+        public User(int id, string name)
         {
-            // Parameterless constructor for EF
+            Id = id;
+            Name = name;
             StudyGroups = new List<StudyGroup>();
         }
 
-        public User(int userId, string name) : this()
-        {
-            Id = userId;
-            Name = name;
-        }
-
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public List<StudyGroup> StudyGroups { get; set; }
-
-        // Override Equals and GetHashCode for proper comparison
-        public override bool Equals(object? obj)
-        {
-            return obj is User user && Id == user.Id;
-        }
-
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+        public int Id { get; private set; }
+        public string Name { get; private set; } = string.Empty;
+        public List<StudyGroup> StudyGroups { get; private set; } = new List<StudyGroup>();
     }
 }

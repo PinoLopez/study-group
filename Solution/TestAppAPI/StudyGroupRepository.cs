@@ -18,15 +18,13 @@ namespace TestAppAPI
 
         public async Task CreateStudyGroup(StudyGroup studyGroup)
         {
-            // Validate uniqueness by Subject
             if (await _context.StudyGroups.AnyAsync(s => s.Subject == studyGroup.Subject))
             {
                 throw new InvalidOperationException($"A study group for subject '{studyGroup.Subject}' already exists.");
             }
 
-            // Create new instance with current date (original is immutable)
             var newGroup = new StudyGroup(
-                studyGroupId: 0, // Let EF generate the ID
+                studyGroupId: 0,
                 name: studyGroup.Name,
                 subject: studyGroup.Subject,
                 createDate: DateTime.UtcNow,
@@ -96,6 +94,43 @@ namespace TestAppAPI
 
             group.Users.Remove(user);
             await _context.SaveChangesAsync();
+        }
+
+        // === SIMULATED QUERY FOR DEBUG ENDPOINT ===
+        public async Task<List<StudyGroup>> GetStudyGroupsWithUsersNamedStartingWithM()
+        {
+            var mockStudyGroups = new List<StudyGroup>
+            {
+                new StudyGroup(
+                    studyGroupId: 1,
+                    name: "Math Study Club",
+                    subject: Subject.Math,
+                    createDate: DateTime.UtcNow.AddDays(-2),
+                    users: new List<User>
+                    {
+                        new User(1, "Miguel Perez"),
+                        new User(2, "Manuel Pino")
+                    }
+                ),
+                new StudyGroup(
+                    studyGroupId: 2,
+                    name: "Physics Fundamentals",
+                    subject: Subject.Physics,
+                    createDate: DateTime.UtcNow.AddDays(-1),
+                    users: new List<User>
+                    {
+                        new User(3, "Alice Johnson"),
+                        new User(4, "Michael Torres")
+                    }
+                )
+            };
+
+            var filtered = mockStudyGroups
+                .Where(sg => sg.Users.Any(u => u.Name.StartsWith("M", StringComparison.OrdinalIgnoreCase)))
+                .OrderBy(sg => sg.CreateDate)
+                .ToList();
+
+            return await Task.FromResult(filtered);
         }
     }
 }
