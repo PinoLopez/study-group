@@ -109,7 +109,7 @@ namespace TestApp.Tests
         public void StudyGroup_Constructor_NullUsers_InitializesEmptyList()
         {
             TestContext.WriteLine("Testing constructor with null user list...");
-            var studyGroup = new StudyGroup(1, "Math Study Group", Subject.Math, DateTime.Now, null);
+            var studyGroup = new StudyGroup(1, "Math Study Group", Subject.Math, DateTime.Now, null!);
             TestContext.WriteLine($"Users list initialized. Count = {studyGroup.Users.Count}");
             Assert.That(studyGroup.Users, Is.Not.Null);
             Assert.That(studyGroup.Users.Count, Is.EqualTo(0));

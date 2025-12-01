@@ -15,7 +15,7 @@ namespace TestApp
             Users = new List<User>();
         }
 
-        public StudyGroup(int studyGroupId, string name, Subject subject, DateTime createDate, List<User> users)
+        public StudyGroup(int studyGroupId, string name, Subject subject, DateTime createDate, List<User>? users)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Study group name cannot be null or empty.", nameof(name));
