@@ -118,7 +118,7 @@ namespace TestAppAPI
             }
         }
 
-        // === TEMPORARY DEBUG ENDPOINT ===
+        // DEBUG ENDPOINT
         [HttpGet("debug/query-m-users")]
         public async Task<IActionResult> GetStudyGroupsWithMUsers()
         {

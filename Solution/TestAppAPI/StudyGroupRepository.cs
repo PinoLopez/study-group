@@ -96,7 +96,7 @@ namespace TestAppAPI
             await _context.SaveChangesAsync();
         }
 
-        // === SIMULATED QUERY FOR DEBUG ENDPOINT ===
+        // QUERY FOR DEBUG ENDPOINT 
         public async Task<List<StudyGroup>> GetStudyGroupsWithUsersNamedStartingWithM()
         {
             var mockStudyGroups = new List<StudyGroup>
@@ -119,8 +119,8 @@ namespace TestAppAPI
                     createDate: DateTime.UtcNow.AddDays(-1),
                     users: new List<User>
                     {
-                        new User(3, "Alice Johnson"),
-                        new User(4, "Michael Torres")
+                        new User(3, "Celine Johnson"),
+                        new User(4, "Antonio Torres")
                     }
                 )
             };
