@@ -6,24 +6,28 @@ namespace TestApp
 {
     public class StudyGroup
     {
-        private const int MinNameLength = 5;
-        private const int MaxNameLength = 30;
+        public int StudyGroupId { get; private set; }
+        public string Name { get; private set; }
+        public Subject Subject { get; private set; }
+        public DateTime CreateDate { get; private set; }
+        public List<User> Users { get; private set; } = new List<User>();
 
         // Parameterless constructor for EF Core
-        protected StudyGroup() 
+        private StudyGroup() { }
+
+        // Public constructor for domain use
+        public StudyGroup(string name, Subject subject)
         {
-            Users = new List<User>();
+            ValidateName(name);
+            ValidateSubject(subject);
+            Name = name;
+            Subject = subject;
+            CreateDate = DateTime.UtcNow;
         }
 
-        public StudyGroup(int studyGroupId, string name, Subject subject, DateTime createDate, List<User>? users)
+        // Full constructor for repository/mock use
+        public StudyGroup(int studyGroupId, string name, Subject subject, DateTime createDate, List<User> users)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentException("Study group name cannot be null or empty.", nameof(name));
-            if (name.Length < MinNameLength || name.Length > MaxNameLength)
-                throw new ArgumentException($"Study group name must be between {MinNameLength} and {MaxNameLength} characters.", nameof(name));
-            if (!Enum.IsDefined(typeof(Subject), subject))
-                throw new ArgumentException($"Subject '{subject}' is not valid. Valid subjects are: {string.Join(", ", Enum.GetNames(typeof(Subject)))}.", nameof(subject));
-
             StudyGroupId = studyGroupId;
             Name = name;
             Subject = subject;
@@ -31,30 +35,31 @@ namespace TestApp
             Users = users ?? new List<User>();
         }
 
-        public int StudyGroupId { get; private set; }
-        public string Name { get; private set; } = string.Empty;
-        public Subject Subject { get; private set; }
-        public DateTime CreateDate { get; private set; }
-        public List<User> Users { get; private set; } = new List<User>();
+        private void ValidateName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name) || name.Length < 5 || name.Length > 30)
+                throw new ArgumentException("Name must be between 5 and 30 characters.");
+        }
+
+        private void ValidateSubject(Subject subject)
+        {
+            if (!Enum.IsDefined(typeof(Subject), subject))
+                throw new ArgumentException("Invalid subject. Must be Math, Chemistry, or Physics.");
+        }
 
         public void AddUser(User user)
         {
-            if (user == null)
-                throw new ArgumentNullException(nameof(user));
-            if (!Users.Any(u => u.Id == user.Id))
-            {
-                Users.Add(user);
-            }
+            if (user == null) throw new ArgumentNullException(nameof(user));
+            if (Users.Any(u => u.Id == user.Id))
+                throw new InvalidOperationException("User already in group.");
+            Users.Add(user);
         }
 
         public void RemoveUser(User user)
         {
             if (user == null) throw new ArgumentNullException(nameof(user));
-            var userToRemove = Users.FirstOrDefault(u => u.Id == user.Id);
-            if (userToRemove != null)
-            {
-                Users.Remove(userToRemove);
-            }
+            if (!Users.Remove(user))
+                throw new InvalidOperationException("User not in group.");
         }
     }
 
