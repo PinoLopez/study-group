@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Group API Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body class="bg-gray-950 text-white font-sans">
+    <div class="max-w-4xl mx-auto px-6 py-12">
+        <!-- Hero -->
+        <div class="text-center mb-16">
+            <div class="flex justify-center mb-6">
+                <div class="bg-blue-600 text-white text-4xl w-20 h-20 rounded-2xl flex items-center justify-center shadow-xl">
+
+                </div>
+            </div>
+            <h1 class="text-5xl font-bold mb-4">Study Group API</h1>
+            <p class="text-xl text-gray-400 max-w-md mx-auto">Create, search, and join study groups by subject. Built with .NET 8 + EF Core + SQLite.</p>
+            <div class="mt-8 flex gap-4 justify-center">
+                <a href="/swagger" target="_blank" 
+                   class="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-xl font-semibold text-lg flex items-center gap-3 transition">
+                    <i class="fas fa-play"></i> Open Swagger UI
+                </a>
+                <a href="https://github.com/PinoLopez/study-group" target="_blank"
+                   class="bg-gray-800 hover:bg-gray-700 px-8 py-4 rounded-xl font-semibold text-lg flex items-center gap-3 transition">
+                    <i class="fab fa-github"></i> View on GitHub
+                </a>
+            </div>
+        </div>
+
+        <!-- Endpoints -->
+        <div class="bg-gray-900 rounded-3xl p-8 mb-12">
+            <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3"><i class="fas fa-list-check"></i> Available Endpoints</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-gray-800 p-6 rounded-2xl">
+                    <div class="font-mono text-blue-400 mb-2">POST /studygroup/create</div>
+                    <p class="text-sm text-gray-400">Create a new study group (name + subject)</p>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-2xl">
+                    <div class="font-mono text-blue-400 mb-2">GET /studygroup/all</div>
+                    <p class="text-sm text-gray-400">List all groups (sort=asc/desc)</p>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-2xl">
+                    <div class="font-mono text-blue-400 mb-2">GET /studygroup/search?subject=Math</div>
+                    <p class="text-sm text-gray-400">Search by subject</p>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-2xl">
+                    <div class="font-mono text-blue-400 mb-2">POST /studygroup/join &amp; /leave</div>
+                    <p class="text-sm text-gray-400">Join/leave groups with userId</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tech + Deploy -->
+        <div class="text-center text-gray-400 text-sm">
+            <p>Deployed on <span class="font-semibold text-white">Railway</span> with persistent SQLite volume</p>
+            <p class="mt-2">.NET 8 • Entity Framework • Swagger • Tailwind landing page</p>
+        </div>
+    </div>
+</body>
+</html>

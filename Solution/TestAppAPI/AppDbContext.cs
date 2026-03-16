@@ -12,7 +12,6 @@ namespace TestAppAPI
         public DbSet<User> Users { get; set; } = null!;
 
         public AppDbContext() { }
-
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public AppDbContext CreateDbContext(string[] args)
@@ -20,18 +19,16 @@ namespace TestAppAPI
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.Development.json", optional: true)
                 .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+            optionsBuilder.UseSqlite(configuration.GetConnectionString("DefaultConnection"));
             return new AppDbContext(optionsBuilder.Options);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
             modelBuilder.Entity<StudyGroup>(entity =>
             {
                 entity.HasKey(e => e.StudyGroupId);
@@ -41,13 +38,11 @@ namespace TestAppAPI
                 entity.Property(e => e.CreateDate).IsRequired();
                 entity.HasIndex(e => e.Subject).IsUnique();
             });
-
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
             });
-
             modelBuilder.Entity<StudyGroup>()
                 .HasMany(s => s.Users)
                 .WithMany(u => u.StudyGroups)
