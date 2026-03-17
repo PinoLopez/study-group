@@ -20,6 +20,18 @@
     </style>
 </head>
 <body class="bg-gray-950 text-white font-sans antialiased">
+    <!-- Custom Alert Modal -->
+    <div id="alertModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold" id="alertTitle">Message</h3>
+                <span class="close-btn" onclick="closeAlertModal()">&times;</span>
+            </div>
+            <p id="alertMessage" class="text-gray-300 mb-6"></p>
+            <button onclick="closeAlertModal()" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg transition">OK</button>
+        </div>
+    </div>
+
     <!-- Custom Join Modal -->
     <div id="joinModal" class="modal">
         <div class="modal-content">
@@ -258,7 +270,7 @@ GET    /studygroup/debug/query-m-users</pre>
                 </div>
             </div>
 
-            <!-- M‑USERS QUERY TAB - Button removed, now automatic -->
+            <!-- M‑USERS QUERY TAB -->
             <div id="mquery-tab" class="tab-pane hidden">
                 <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
                     <div class="flex items-center gap-3 mb-6">
@@ -396,6 +408,14 @@ GET    /studygroup/debug/query-m-users</pre>
     </style>
 
     <script>
+        // Custom Alert Modal functions
+        function showAlert(message, title = 'Message') {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMessage').innerText = message;
+            document.getElementById('alertModal').style.display = 'block';
+        }
+        function closeAlertModal() { document.getElementById('alertModal').style.display = 'none'; }
+
         // Modal variables
         let currentGroupId = null;
         let currentAction = null;
@@ -460,7 +480,7 @@ GET    /studygroup/debug/query-m-users</pre>
                 const user = users.find(u => u.id === userId);
                 
                 if (group.users.includes(userId)) {
-                    alert('User already in group');
+                    showAlert('User already in group', 'Cannot Join');
                     closeJoinModal();
                     return;
                 }
@@ -469,7 +489,7 @@ GET    /studygroup/debug/query-m-users</pre>
                 saveGroups(groups);
                 renderGroups();
                 closeJoinModal();
-                alert(`✅ ${user.name} joined the group`);
+                showAlert(`✅ ${user.name} joined the group`, 'Success');
             } else if (currentAction === 'leave') {
                 const groups = getGroups();
                 const users = getUsers();
@@ -480,7 +500,7 @@ GET    /studygroup/debug/query-m-users</pre>
                 saveGroups(groups);
                 renderGroups();
                 closeLeaveModal();
-                alert(`✅ ${user.name} left the group`);
+                showAlert(`✅ ${user.name} left the group`, 'Success');
             }
         }
 
@@ -488,10 +508,19 @@ GET    /studygroup/debug/query-m-users</pre>
             if (e.target == document.getElementById('helpModal')) closeHelp();
             if (e.target == document.getElementById('joinModal')) closeJoinModal();
             if (e.target == document.getElementById('leaveModal')) closeLeaveModal();
+            if (e.target == document.getElementById('alertModal')) closeAlertModal();
         }
 
-        // Fixed Try button function
+        // Fixed Try button function - checks if group already exists
         function tryTestCase1() {
+            const groups = getGroups();
+            const existingGroup = groups.find(g => g.name === 'Math Study' && g.subject === 'Math');
+            
+            if (existingGroup) {
+                showAlert('A group named "Math Study" already exists!', 'Cannot Create');
+                return;
+            }
+            
             // Switch to Groups tab first
             document.getElementById('tab-groups').click();
             
@@ -509,7 +538,7 @@ GET    /studygroup/debug/query-m-users</pre>
         const STORAGE_NEXT_GROUP_ID = 'nextGroupId';
         const STORAGE_NEXT_USER_ID = 'nextUserId';
 
-        // ----- INITIAL SAMPLE DATA - FORCE RESET WITH PHYSICS (not Physics 101) -----
+        // ----- INITIAL SAMPLE DATA -----
         const SAMPLE_USERS = [
             { id: 1, name: 'Miguel' },
             { id: 2, name: 'Manuel' },
@@ -524,16 +553,18 @@ GET    /studygroup/debug/query-m-users</pre>
             { studyGroupId: 3, name: 'Physics', subject: 'Physics', createDate: new Date(Date.now() - 1*86400000).toISOString(), users: [5] }
         ];
 
-        // FORCE RESET - This will overwrite any old data including "Physics 101"
+        // Initialize with sample data
         function initializeData() {
-            // Always reset to sample data on first load
-            localStorage.setItem(STORAGE_USERS, JSON.stringify(SAMPLE_USERS));
-            localStorage.setItem(STORAGE_NEXT_USER_ID, '6');
-            localStorage.setItem(STORAGE_GROUPS, JSON.stringify(SAMPLE_GROUPS));
-            localStorage.setItem(STORAGE_NEXT_GROUP_ID, '4');
+            // Only set if empty, to preserve user-created data
+            if (!localStorage.getItem(STORAGE_USERS)) {
+                localStorage.setItem(STORAGE_USERS, JSON.stringify(SAMPLE_USERS));
+                localStorage.setItem(STORAGE_NEXT_USER_ID, '6');
+            }
+            if (!localStorage.getItem(STORAGE_GROUPS)) {
+                localStorage.setItem(STORAGE_GROUPS, JSON.stringify(SAMPLE_GROUPS));
+                localStorage.setItem(STORAGE_NEXT_GROUP_ID, '4');
+            }
         }
-        
-        // Clear any existing data and set fresh samples
         initializeData();
 
         function getUsers() { return JSON.parse(localStorage.getItem(STORAGE_USERS)) || []; }
@@ -680,7 +711,10 @@ GET    /studygroup/debug/query-m-users</pre>
             document.getElementById('addUserBtn').addEventListener('click', function() {
                 const name = document.getElementById('newUserName').value.trim();
                 const msg = document.getElementById('userMessage');
-                if (!name) { msg.innerText = 'Name required'; return; }
+                if (!name) { 
+                    msg.innerText = 'Name required'; 
+                    return; 
+                }
                 const users = getUsers();
                 const nextId = parseInt(localStorage.getItem(STORAGE_NEXT_USER_ID) || '6');
                 users.push({ id: nextId, name });
