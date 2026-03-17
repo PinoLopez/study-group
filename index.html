@@ -48,7 +48,7 @@ GET    /studygroup/debug/query-m-users</pre>
                 </div>
 
                 <div class="bg-gray-800 p-4 rounded-xl">
-                    <h3 class="font-semibold text-lg mb-2">🧪 Test Coverage (from your documents)</h3>
+                    <h3 class="font-semibold text-lg mb-2">🧪 Test Coverage</h3>
                     <div class="grid grid-cols-2 gap-2 text-sm">
                         <div>✓ 9 Unit Tests (StudyGroup.cs)</div>
                         <div>✓ 15 Component Tests (API)</div>
@@ -57,7 +57,7 @@ GET    /studygroup/debug/query-m-users</pre>
                     </div>
                 </div>
 
-                <p class="text-xs text-gray-500 mt-4">All data stored in your browser's localStorage · Refresh to reset</p>
+                <p class="text-xs text-gray-500 mt-4">All data stored in the browser's localStorage · Refresh to reset</p>
             </div>
         </div>
     </div>
@@ -107,7 +107,7 @@ GET    /studygroup/debug/query-m-users</pre>
 
         <!-- Tab Content -->
         <div id="tab-content">
-            <!-- GROUPS TAB (same as before) -->
+            <!-- GROUPS TAB -->
             <div id="groups-tab" class="tab-pane">
                 <div class="grid lg:grid-cols-3 gap-6">
                     <!-- Left: Create Form + Filters -->
@@ -193,7 +193,7 @@ GET    /studygroup/debug/query-m-users</pre>
                 </div>
             </div>
 
-            <!-- USERS TAB (same as before) -->
+            <!-- USERS TAB -->
             <div id="users-tab" class="tab-pane hidden">
                 <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
                     <div class="flex items-center justify-between mb-6">
@@ -244,7 +244,7 @@ GET    /studygroup/debug/query-m-users</pre>
                 </div>
             </div>
 
-            <!-- TEST CASES TAB (NEW) -->
+            <!-- TEST CASES TAB -->
             <div id="testcases-tab" class="tab-pane hidden">
                 <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
                     <h2 class="text-xl font-semibold mb-6"><i class="fas fa-vial mr-2 text-blue-400"></i>18 Test Cases (from Juan Pino Test task)</h2>
@@ -296,7 +296,7 @@ GET    /studygroup/debug/query-m-users</pre>
                 </div>
             </div>
 
-            <!-- API REFERENCE TAB (NEW) -->
+            <!-- API REFERENCE TAB -->
             <div id="api-tab" class="tab-pane hidden">
                 <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
                     <h2 class="text-xl font-semibold mb-6"><i class="fas fa-code mr-2 text-blue-400"></i>API Reference (from StudyGroupController.cs)</h2>
@@ -351,7 +351,7 @@ GET    /studygroup/debug/query-m-users</pre>
 
         <!-- Footer -->
         <div class="mt-8 text-center text-xs text-gray-600 border-t border-gray-800 pt-6">
-            <p>Simple demo web · Complete implementation of the study group feature · Data stored in browser</p>
+            <p>Simple demo web · Complete implementation of the study group feature · All data stored in the browser's localStorage</p>
             <p class="mt-2">GitHub: <a href="https://github.com/PinoLopez" class="text-blue-400 hover:underline">PinoLopez</a> · <a href="https://github.com/PinoLopez/study-group" class="text-blue-400 hover:underline">study-group repository</a></p>
         </div>
     </div>
@@ -374,7 +374,6 @@ GET    /studygroup/debug/query-m-users</pre>
                 document.getElementById('groupSubject').value = 'Math';
                 document.getElementById('createGroupBtn').click();
             }
-            // Add more test helpers as needed
         }
 
         // ----- STORAGE KEYS -----
@@ -505,36 +504,67 @@ GET    /studygroup/debug/query-m-users</pre>
             document.getElementById('statMemberships').innerText = memberships;
         }
 
+        // IMPROVED: Join function with user list shown directly
         window.joinGroup = function(groupId) {
-            const userId = prompt('Enter user ID to join (see Users tab):');
-            if (!userId) return;
-            const uid = parseInt(userId);
-            if (isNaN(uid)) { alert('Invalid ID'); return; }
-            const groups = getGroups(), users = getUsers();
+            const users = getUsers();
+            const groups = getGroups();
             const group = groups.find(g => g.studyGroupId === groupId);
-            if (!group) { alert('Group not found'); return; }
+            
+            // Create a nice list of available users
+            let userListText = "Available users:\n";
+            users.forEach(u => {
+                const isInGroup = group.users.includes(u.id);
+                userListText += `• ${u.name} (ID: ${u.id})${isInGroup ? ' - already in this group' : ''}\n`;
+            });
+            userListText += "\nEnter the ID of the user you want to join:";
+            
+            const userId = prompt(userListText);
+            if (!userId) return;
+            
+            const uid = parseInt(userId);
+            if (isNaN(uid)) { alert('❌ Invalid ID'); return; }
+            
             const user = users.find(u => u.id === uid);
-            if (!user) { alert('User not found'); return; }
-            if (group.users.includes(uid)) { alert('User already in group'); return; }
+            if (!user) { alert('❌ User not found'); return; }
+            if (group.users.includes(uid)) { alert('❌ User already in group'); return; }
+
             group.users.push(uid);
             saveGroups(groups);
             renderGroups();
             alert(`✅ ${user.name} joined ${group.name}`);
         };
 
+        // IMPROVED: Leave function with current members shown
         window.leaveGroup = function(groupId) {
-            const userId = prompt('Enter user ID to leave:');
-            if (!userId) return;
-            const uid = parseInt(userId);
-            if (isNaN(uid)) { alert('Invalid ID'); return; }
             const groups = getGroups();
+            const users = getUsers();
             const group = groups.find(g => g.studyGroupId === groupId);
-            if (!group) { alert('Group not found'); return; }
-            if (!group.users.includes(uid)) { alert('User not in group'); return; }
+            
+            if (group.users.length === 0) {
+                alert('ℹ️ No members in this group to leave');
+                return;
+            }
+            
+            // Create a nice list of current members
+            let memberListText = "Current members:\n";
+            group.users.forEach(uid => {
+                const user = users.find(u => u.id === uid);
+                if (user) memberListText += `• ${user.name} (ID: ${user.id})\n`;
+            });
+            memberListText += "\nEnter the ID of the user you want to remove:";
+            
+            const userId = prompt(memberListText);
+            if (!userId) return;
+            
+            const uid = parseInt(userId);
+            if (isNaN(uid)) { alert('❌ Invalid ID'); return; }
+            
+            if (!group.users.includes(uid)) { alert('❌ User not in this group'); return; }
+
             group.users = group.users.filter(id => id !== uid);
             saveGroups(groups);
             renderGroups();
-            alert(`User left the group`);
+            alert(`✅ User left the group`);
         };
 
         document.addEventListener('DOMContentLoaded', function() {
