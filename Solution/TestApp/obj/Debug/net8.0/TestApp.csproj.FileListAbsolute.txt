@@ -1,0 +1,12 @@
+/home/agropecuario/Documents/webapp/Solution/TestApp/bin/Debug/net8.0/TestApp.deps.json
+/home/agropecuario/Documents/webapp/Solution/TestApp/bin/Debug/net8.0/TestApp.dll
+/home/agropecuario/Documents/webapp/Solution/TestApp/bin/Debug/net8.0/TestApp.pdb
+/home/agropecuario/Documents/webapp/Solution/TestApp/obj/Debug/net8.0/TestApp.GeneratedMSBuildEditorConfig.editorconfig
+/home/agropecuario/Documents/webapp/Solution/TestApp/obj/Debug/net8.0/TestApp.AssemblyInfoInputs.cache
+/home/agropecuario/Documents/webapp/Solution/TestApp/obj/Debug/net8.0/TestApp.AssemblyInfo.cs
+/home/agropecuario/Documents/webapp/Solution/TestApp/obj/Debug/net8.0/TestApp.csproj.CoreCompileInputs.cache
+/home/agropecuario/Documents/webapp/Solution/TestApp/obj/Debug/net8.0/TestApp.sourcelink.json
+/home/agropecuario/Documents/webapp/Solution/TestApp/obj/Debug/net8.0/TestApp.dll
+/home/agropecuario/Documents/webapp/Solution/TestApp/obj/Debug/net8.0/refint/TestApp.dll
+/home/agropecuario/Documents/webapp/Solution/TestApp/obj/Debug/net8.0/TestApp.pdb
+/home/agropecuario/Documents/webapp/Solution/TestApp/obj/Debug/net8.0/ref/TestApp.dll

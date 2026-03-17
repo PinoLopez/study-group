@@ -1,0 +1,39 @@
+{
+  "Version": 1,
+  "Hash": "8+E5/vmCfMtBsS+B3mC5jn0jiFa4l20hktC1TwY77OY=",
+  "Source": "TestAppAPI",
+  "BasePath": "_content/TestAppAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "TestAppAPI/wwwroot",
+      "Source": "TestAppAPI",
+      "ContentRoot": "/home/agropecuario/Documents/webapp/Solution/TestAppAPI/wwwroot/",
+      "BasePath": "_content/TestAppAPI",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "/home/agropecuario/Documents/webapp/Solution/TestAppAPI/wwwroot/index.html",
+      "SourceId": "TestAppAPI",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/agropecuario/Documents/webapp/Solution/TestAppAPI/wwwroot/",
+      "BasePath": "_content/TestAppAPI",
+      "RelativePath": "index.html",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/index.html"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "Files": [
+    {
+      "Id": "/home/agropecuario/Documents/webapp/Solution/TestAppAPI/wwwroot/index.html",
+      "PackagePath": "staticwebassets/index.html"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.TestAppAPI.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.TestAppAPI.props",
+      "PackagePath": "build\\TestAppAPI.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.TestAppAPI.props",
+      "PackagePath": "buildMultiTargeting\\TestAppAPI.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.TestAppAPI.props",
+      "PackagePath": "buildTransitive\\TestAppAPI.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
