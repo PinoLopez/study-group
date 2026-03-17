@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Study Groups · Juan Pino · Demo</title>
+    <!-- Tailwind CSS from CDN - fine for demo purposes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -257,7 +258,7 @@ GET    /studygroup/debug/query-m-users</pre>
                 </div>
             </div>
 
-            <!-- M‑USERS QUERY TAB -->
+            <!-- M‑USERS QUERY TAB - Button removed, now automatic -->
             <div id="mquery-tab" class="tab-pane hidden">
                 <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
                     <div class="flex items-center gap-3 mb-6">
@@ -269,9 +270,6 @@ GET    /studygroup/debug/query-m-users</pre>
                             <p class="text-sm text-gray-400">SQL equivalent: <span class="font-mono bg-gray-800 px-2 py-1 rounded">SELECT * FROM StudyGroups WHERE EXISTS (SELECT 1 FROM Users WHERE name LIKE 'M%')</span></p>
                         </div>
                     </div>
-                    <button id="runMQueryBtn" class="mb-6 bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl font-medium flex items-center gap-2">
-                        <i class="fas fa-play"></i> Show groups with M-users
-                    </button>
                     <div id="mQueryResults" class="space-y-3"></div>
                     <div id="noMResults" class="text-center py-12 text-gray-600 hidden">
                         <i class="fas fa-search text-4xl mb-2"></i>
@@ -286,7 +284,7 @@ GET    /studygroup/debug/query-m-users</pre>
                     <h2 class="text-xl font-semibold mb-6"><i class="fas fa-vial mr-2 text-blue-400"></i>18 Test Cases for Quality Assurance</h2>
                     <div class="grid md:grid-cols-2 gap-4 text-sm max-h-[600px] overflow-y-auto pr-2">
                         <div class="bg-gray-800/50 p-4 rounded-xl">
-                            <span class="text-blue-400 font-bold">1.</span> Create "Math Study" (Math) ✅ <button onclick="tryTestCase(1)" class="text-xs bg-blue-600 px-2 py-1 rounded ml-2">Try</button>
+                            <span class="text-blue-400 font-bold">1.</span> Create "Math Study" (Math) ✅ <button onclick="tryTestCase1()" class="text-xs bg-blue-600 px-2 py-1 rounded ml-2 hover:bg-blue-700">Try</button>
                             <p class="text-gray-400 text-xs mt-1">Valid name (10 chars), subject Math</p>
                         </div>
                         <div class="bg-gray-800/50 p-4 rounded-xl">
@@ -307,7 +305,7 @@ GET    /studygroup/debug/query-m-users</pre>
                         </div>
                         <div class="bg-gray-800/50 p-4 rounded-xl">
                             <span class="text-blue-400 font-bold">6-8.</span> Join group tests
-                            <p class="text-gray-400 text-xs mt-1">Use IDs: group 1, user 1</p>
+                            <p class="text-gray-400 text-xs mt-1">Use Join button on any group</p>
                         </div>
                         <div class="bg-gray-800/50 p-4 rounded-xl">
                             <span class="text-blue-400 font-bold">9.</span> View all groups
@@ -326,7 +324,7 @@ GET    /studygroup/debug/query-m-users</pre>
                             <p class="text-gray-400 text-xs mt-1">Create → View → Join → Leave → Filter</p>
                         </div>
                         <div class="bg-gray-800/50 p-4 rounded-xl col-span-2">
-                            <span class="text-blue-400 font-bold">18.</span> M-users query <button onclick="document.getElementById('tab-mquery').click()" class="text-xs bg-purple-600 px-2 py-1 rounded ml-2">Go to query</button>
+                            <span class="text-blue-400 font-bold">18.</span> M-users query <button onclick="document.getElementById('tab-mquery').click()" class="text-xs bg-purple-600 px-2 py-1 rounded ml-2 hover:bg-purple-700">Go to query</button>
                         </div>
                     </div>
                 </div>
@@ -492,12 +490,17 @@ GET    /studygroup/debug/query-m-users</pre>
             if (e.target == document.getElementById('leaveModal')) closeLeaveModal();
         }
 
-        function tryTestCase(num) {
-            if (num === 1) {
-                document.getElementById('groupName').value = 'Math Study';
-                document.getElementById('groupSubject').value = 'Math';
-                document.getElementById('createGroupBtn').click();
-            }
+        // Fixed Try button function
+        function tryTestCase1() {
+            // Switch to Groups tab first
+            document.getElementById('tab-groups').click();
+            
+            // Fill the form
+            document.getElementById('groupName').value = 'Math Study';
+            document.getElementById('groupSubject').value = 'Math';
+            
+            // Click create button
+            document.getElementById('createGroupBtn').click();
         }
 
         // ----- STORAGE KEYS -----
@@ -506,7 +509,7 @@ GET    /studygroup/debug/query-m-users</pre>
         const STORAGE_NEXT_GROUP_ID = 'nextGroupId';
         const STORAGE_NEXT_USER_ID = 'nextUserId';
 
-        // ----- INITIAL SAMPLE DATA (changed Physics 101 to Physics) -----
+        // ----- INITIAL SAMPLE DATA - FORCE RESET WITH PHYSICS (not Physics 101) -----
         const SAMPLE_USERS = [
             { id: 1, name: 'Miguel' },
             { id: 2, name: 'Manuel' },
@@ -521,16 +524,16 @@ GET    /studygroup/debug/query-m-users</pre>
             { studyGroupId: 3, name: 'Physics', subject: 'Physics', createDate: new Date(Date.now() - 1*86400000).toISOString(), users: [5] }
         ];
 
+        // FORCE RESET - This will overwrite any old data including "Physics 101"
         function initializeData() {
-            if (!localStorage.getItem(STORAGE_USERS)) {
-                localStorage.setItem(STORAGE_USERS, JSON.stringify(SAMPLE_USERS));
-                localStorage.setItem(STORAGE_NEXT_USER_ID, '6');
-            }
-            if (!localStorage.getItem(STORAGE_GROUPS)) {
-                localStorage.setItem(STORAGE_GROUPS, JSON.stringify(SAMPLE_GROUPS));
-                localStorage.setItem(STORAGE_NEXT_GROUP_ID, '4');
-            }
+            // Always reset to sample data on first load
+            localStorage.setItem(STORAGE_USERS, JSON.stringify(SAMPLE_USERS));
+            localStorage.setItem(STORAGE_NEXT_USER_ID, '6');
+            localStorage.setItem(STORAGE_GROUPS, JSON.stringify(SAMPLE_GROUPS));
+            localStorage.setItem(STORAGE_NEXT_GROUP_ID, '4');
         }
+        
+        // Clear any existing data and set fresh samples
         initializeData();
 
         function getUsers() { return JSON.parse(localStorage.getItem(STORAGE_USERS)) || []; }
@@ -688,7 +691,6 @@ GET    /studygroup/debug/query-m-users</pre>
                 renderUsers();
                 setTimeout(() => msg.innerText = '', 2000);
             });
-            document.getElementById('runMQueryBtn').addEventListener('click', renderMQuery);
 
             renderGroups();
             renderUsers();
