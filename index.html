@@ -70,10 +70,9 @@
                                 <div>
                                     <label class="block text-xs text-gray-400 mb-1">Subject</label>
                                     <select id="groupSubject" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none">
-                                        <option value="Math">Math</option>
-                                        <option value="Chemistry">Chemistry</option>
-                                        <option value="Physics">Physics</option>
+                                        <!-- Dynamically filled by JavaScript -->
                                     </select>
+                                    <p id="availableSubjectsMsg" class="text-xs text-yellow-400 mt-1"></p>
                                 </div>
                                 <button id="createGroupBtn" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2">
                                     <i class="fas fa-check"></i> Create Group
@@ -249,6 +248,9 @@
             const STORAGE_NEXT_GROUP_ID = 'nextGroupId';
             const STORAGE_NEXT_USER_ID = 'nextUserId';
 
+            // ----- ALL POSSIBLE SUBJECTS -----
+            const ALL_SUBJECTS = ['Math', 'Chemistry', 'Physics'];
+
             // ----- INITIAL SAMPLE DATA (matches your test cases) -----
             const SAMPLE_USERS = [
                 { id: 1, name: 'Miguel' },
@@ -307,6 +309,44 @@
             }
             function saveGroups(groups) {
                 localStorage.setItem(STORAGE_GROUPS, JSON.stringify(groups));
+            }
+
+            // ----- NEW FUNCTION: Get available subjects (not taken) -----
+            function getAvailableSubjects() {
+                const groups = getGroups();
+                const takenSubjects = groups.map(g => g.subject);
+                return ALL_SUBJECTS.filter(s => !takenSubjects.includes(s));
+            }
+
+            // ----- NEW FUNCTION: Update subject dropdown in create form -----
+            function updateSubjectDropdown() {
+                const select = document.getElementById('groupSubject');
+                const msg = document.getElementById('availableSubjectsMsg');
+                const available = getAvailableSubjects();
+                
+                if (available.length === 0) {
+                    select.innerHTML = '<option value="" disabled selected>No subjects available</option>';
+                    select.disabled = true;
+                    msg.innerText = '⚠️ All subjects are taken. Delete a group first.';
+                    document.getElementById('createGroupBtn').disabled = true;
+                    document.getElementById('createGroupBtn').classList.add('opacity-50', 'cursor-not-allowed');
+                } else {
+                    select.disabled = false;
+                    document.getElementById('createGroupBtn').disabled = false;
+                    document.getElementById('createGroupBtn').classList.remove('opacity-50', 'cursor-not-allowed');
+                    
+                    let options = '';
+                    available.forEach(subject => {
+                        options += `<option value="${subject}">${subject}</option>`;
+                    });
+                    select.innerHTML = options;
+                    
+                    if (available.length === 1) {
+                        msg.innerText = `📌 Only ${available[0]} is available`;
+                    } else {
+                        msg.innerText = `📌 Available: ${available.join(', ')}`;
+                    }
+                }
             }
 
             // ----- RENDER FUNCTIONS -----
@@ -370,6 +410,7 @@
                     container.innerHTML = html;
                 }
                 updateStats();
+                updateSubjectDropdown(); // Update dropdown after any change
             }
 
             function renderUsers() {
@@ -487,7 +528,10 @@
                         }
                     });
                     
-                    if (tabId === 'groups') renderGroups();
+                    if (tabId === 'groups') {
+                        renderGroups();
+                        updateSubjectDropdown();
+                    }
                     if (tabId === 'users') renderUsers();
                     if (tabId === 'mquery') renderMQuery();
                 }
@@ -502,6 +546,12 @@
                     const name = document.getElementById('groupName').value.trim();
                     const subject = document.getElementById('groupSubject').value;
                     const msg = document.getElementById('createMessage');
+
+                    if (!subject) {
+                        msg.innerText = '❌ No subjects available';
+                        msg.classList.add('text-red-400');
+                        return;
+                    }
 
                     if (name.length < 5 || name.length > 30) {
                         msg.innerText = '❌ Name must be 5‑30 chars';
@@ -533,6 +583,7 @@
                     document.getElementById('groupName').value = '';
                     setTimeout(() => msg.innerText = '', 2000);
                     renderGroups();
+                    updateSubjectDropdown();
                 });
 
                 document.getElementById('applyFilterBtn').addEventListener('click', renderGroups);
@@ -563,8 +614,10 @@
 
                 document.getElementById('runMQueryBtn').addEventListener('click', renderMQuery);
 
+                // Initial renders
                 renderGroups();
                 renderUsers();
+                updateSubjectDropdown();
             });
         })();
     </script>
