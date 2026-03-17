@@ -290,53 +290,100 @@ GET    /studygroup/debug/query-m-users</pre>
                 </div>
             </div>
 
-            <!-- TEST CASES TAB -->
+            <!-- TEST CASES TAB - UPDATED WITH INDIVIDUAL LISTINGS -->
             <div id="testcases-tab" class="tab-pane hidden">
                 <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
                     <h2 class="text-xl font-semibold mb-6"><i class="fas fa-vial mr-2 text-blue-400"></i>18 Test Cases for Quality Assurance</h2>
                     <div class="grid md:grid-cols-2 gap-4 text-sm max-h-[600px] overflow-y-auto pr-2">
+                        <!-- Test Case 1 -->
                         <div class="bg-gray-800/50 p-4 rounded-xl">
                             <span class="text-blue-400 font-bold">1.</span> Create "Math Study" (Math) ✅ <button onclick="tryTestCase1()" class="text-xs bg-blue-600 px-2 py-1 rounded ml-2 hover:bg-blue-700">Try</button>
                             <p class="text-gray-400 text-xs mt-1">Valid name (10 chars), subject Math</p>
                         </div>
+                        <!-- Test Case 2 -->
                         <div class="bg-gray-800/50 p-4 rounded-xl">
                             <span class="text-blue-400 font-bold">2.</span> Create "Math" (too short) ❌
                             <p class="text-gray-400 text-xs mt-1">Should fail: name length 4</p>
                         </div>
+                        <!-- Test Case 3 -->
                         <div class="bg-gray-800/50 p-4 rounded-xl">
                             <span class="text-blue-400 font-bold">3.</span> Create 31-char name ❌
                             <p class="text-gray-400 text-xs mt-1">Should fail: name too long</p>
                         </div>
+                        <!-- Test Case 4 -->
                         <div class="bg-gray-800/50 p-4 rounded-xl">
                             <span class="text-blue-400 font-bold">4.</span> Create with "Biology" ❌
                             <p class="text-gray-400 text-xs mt-1">Invalid subject</p>
                         </div>
+                        <!-- Test Case 5 -->
                         <div class="bg-gray-800/50 p-4 rounded-xl">
                             <span class="text-blue-400 font-bold">5.</span> Duplicate subject ⚠️
                             <p class="text-gray-400 text-xs mt-1">Now allowed (simplified demo)</p>
                         </div>
+                        <!-- Test Case 6 -->
                         <div class="bg-gray-800/50 p-4 rounded-xl">
-                            <span class="text-blue-400 font-bold">6-8.</span> Join group tests
+                            <span class="text-blue-400 font-bold">6.</span> Join existing group
                             <p class="text-gray-400 text-xs mt-1">Use Join button on any group</p>
                         </div>
+                        <!-- Test Case 7 -->
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">7.</span> Join non-existent group
+                            <p class="text-gray-400 text-xs mt-1">Should show error</p>
+                        </div>
+                        <!-- Test Case 8 -->
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">8.</span> Join already joined group
+                            <p class="text-gray-400 text-xs mt-1">Should show "already in group"</p>
+                        </div>
+                        <!-- Test Case 9 -->
                         <div class="bg-gray-800/50 p-4 rounded-xl">
                             <span class="text-blue-400 font-bold">9.</span> View all groups
                             <p class="text-gray-400 text-xs mt-1">Click "Groups" tab</p>
                         </div>
+                        <!-- Test Case 10 -->
                         <div class="bg-gray-800/50 p-4 rounded-xl">
-                            <span class="text-blue-400 font-bold">10-12.</span> Filter & sort
-                            <p class="text-gray-400 text-xs mt-1">Use dropdowns in Groups tab</p>
+                            <span class="text-blue-400 font-bold">10.</span> Filter by subject (Math)
+                            <p class="text-gray-400 text-xs mt-1">Use filter dropdown</p>
                         </div>
+                        <!-- Test Case 11 -->
                         <div class="bg-gray-800/50 p-4 rounded-xl">
-                            <span class="text-blue-400 font-bold">13-14.</span> Leave group tests
+                            <span class="text-blue-400 font-bold">11.</span> Sort by date (oldest first)
+                            <p class="text-gray-400 text-xs mt-1">Select "Oldest first"</p>
+                        </div>
+                        <!-- Test Case 12 -->
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">12.</span> Sort by date (newest first)
+                            <p class="text-gray-400 text-xs mt-1">Select "Newest first"</p>
+                        </div>
+                        <!-- Test Case 13 -->
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">13.</span> Leave joined group
                             <p class="text-gray-400 text-xs mt-1">Use Leave button on any group</p>
                         </div>
+                        <!-- Test Case 14 -->
                         <div class="bg-gray-800/50 p-4 rounded-xl">
-                            <span class="text-blue-400 font-bold">15-17.</span> E2E scenarios
-                            <p class="text-gray-400 text-xs mt-1">Create → View → Join → Leave → Filter</p>
+                            <span class="text-blue-400 font-bold">14.</span> Leave group not joined
+                            <p class="text-gray-400 text-xs mt-1">Should show error</p>
                         </div>
+                        <!-- Test Case 15 -->
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">15.</span> E2E: Create and view
+                            <p class="text-gray-400 text-xs mt-1">Create group, then check list</p>
+                        </div>
+                        <!-- Test Case 16 -->
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">16.</span> E2E: Join and leave
+                            <p class="text-gray-400 text-xs mt-1">Join group, then leave it</p>
+                        </div>
+                        <!-- Test Case 17 -->
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">17.</span> E2E: Filter and sort
+                            <p class="text-gray-400 text-xs mt-1">Apply filter and sort together</p>
+                        </div>
+                        <!-- Test Case 18 -->
                         <div class="bg-gray-800/50 p-4 rounded-xl col-span-2">
                             <span class="text-blue-400 font-bold">18.</span> M-users query <button onclick="document.getElementById('tab-mquery').click()" class="text-xs bg-purple-600 px-2 py-1 rounded ml-2 hover:bg-purple-700">Go to query</button>
+                            <p class="text-gray-400 text-xs mt-1">Groups with users named Miguel, Manuel, Maria</p>
                         </div>
                     </div>
                 </div>
