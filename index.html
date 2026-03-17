@@ -22,7 +22,7 @@
                 </div>
                 <div>
                     <h1 class="text-3xl font-bold">Study Groups</h1>
-                    <p class="text-gray-400 text-sm">by Juan Pino · Complete implementation · All business rules</p>
+                    <p class="text-gray-400 text-sm">by Juan Pino · Simple demo for recruiters</p>
                 </div>
             </div>
             <div class="flex gap-2 text-sm text-gray-400">
@@ -43,9 +43,6 @@
                 </button>
                 <button id="tab-mquery" class="tab-btn px-1 py-3 text-gray-400 hover:text-white font-medium text-sm uppercase tracking-wider" data-tab="mquery">
                     <i class="fas fa-magnifying-glass mr-2"></i>M‑Users Query
-                </button>
-                <button id="tab-testcases" class="tab-btn px-1 py-3 text-gray-400 hover:text-white font-medium text-sm uppercase tracking-wider" data-tab="testcases">
-                    <i class="fas fa-vial mr-2"></i>Test Cases
                 </button>
             </div>
         </div>
@@ -70,15 +67,17 @@
                                 <div>
                                     <label class="block text-xs text-gray-400 mb-1">Subject</label>
                                     <select id="groupSubject" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none">
-                                        <!-- Dynamically filled by JavaScript -->
+                                        <option value="Math">Math</option>
+                                        <option value="Chemistry">Chemistry</option>
+                                        <option value="Physics">Physics</option>
                                     </select>
-                                    <p id="availableSubjectsMsg" class="text-xs text-yellow-400 mt-1"></p>
                                 </div>
                                 <button id="createGroupBtn" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2">
                                     <i class="fas fa-check"></i> Create Group
                                 </button>
-                                <div id="createMessage" class="text-xs text-center h-4"></div>
+                                <div id="createMessage" class="text-xs text-center h-4 text-green-400"></div>
                             </div>
+                            <p class="text-xs text-gray-500 mt-3 text-center">✅ You can create multiple groups for the same subject</p>
                         </div>
                         
                         <!-- Filter & Sort Card -->
@@ -179,11 +178,11 @@
                         </div>
                         <div>
                             <h2 class="text-xl font-semibold">Groups with users whose name starts with 'M'</h2>
-                            <p class="text-sm text-gray-400">Equivalent to SQL: <span class="font-mono bg-gray-800 px-2 py-1 rounded">SELECT * FROM StudyGroups WHERE EXISTS (SELECT 1 FROM Users WHERE name LIKE 'M%')</span></p>
+                            <p class="text-sm text-gray-400">Shows groups containing Miguel, Manuel, or Maria</p>
                         </div>
                     </div>
                     <button id="runMQueryBtn" class="mb-6 bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl font-medium flex items-center gap-2">
-                        <i class="fas fa-play"></i> Run query
+                        <i class="fas fa-play"></i> Show groups with M-users
                     </button>
                     <div id="mQueryResults" class="space-y-3">
                         <!-- results appear here -->
@@ -194,43 +193,12 @@
                     </div>
                 </div>
             </div>
-
-            <!-- TEST CASES TAB -->
-            <div id="testcases-tab" class="tab-pane hidden">
-                <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
-                    <h2 class="text-xl font-semibold mb-6"><i class="fas fa-vial mr-2 text-blue-400"></i>Test Cases (from Juan Pino Test task)</h2>
-                    <div class="grid md:grid-cols-2 gap-4 text-sm">
-                        <div class="bg-gray-800/50 p-4 rounded-xl">
-                            <span class="text-blue-400 font-bold">1-5:</span> Create group validation (name length, subject, duplicates)
-                        </div>
-                        <div class="bg-gray-800/50 p-4 rounded-xl">
-                            <span class="text-blue-400 font-bold">6-8:</span> Join group (valid, non-existent, already joined)
-                        </div>
-                        <div class="bg-gray-800/50 p-4 rounded-xl">
-                            <span class="text-blue-400 font-bold">9:</span> View all groups
-                        </div>
-                        <div class="bg-gray-800/50 p-4 rounded-xl">
-                            <span class="text-blue-400 font-bold">10-12:</span> Filter by subject, sort by date (ASC/DESC)
-                        </div>
-                        <div class="bg-gray-800/50 p-4 rounded-xl">
-                            <span class="text-blue-400 font-bold">13-14:</span> Leave group (valid, not joined)
-                        </div>
-                        <div class="bg-gray-800/50 p-4 rounded-xl">
-                            <span class="text-blue-400 font-bold">15-17:</span> E2E scenarios (create & view, join & leave, filter & sort)
-                        </div>
-                        <div class="bg-gray-800/50 p-4 rounded-xl col-span-2">
-                            <span class="text-blue-400 font-bold">18:</span> Custom SQL query (M-users) - see "M‑Users Query" tab
-                        </div>
-                    </div>
-                    <p class="text-xs text-gray-500 mt-6">✅ All 18 test cases from the PDF are implemented and can be tested here</p>
-                </div>
-            </div>
         </div>
 
         <!-- Footer -->
         <div class="mt-8 text-center text-xs text-gray-600 border-t border-gray-800 pt-6">
-            <p>Complete static implementation · All business rules preserved · localStorage persistence · Refresh to reset</p>
-            <p class="mt-2">GitHub: <a href="https://github.com/PinoLopez" class="text-blue-400 hover:underline">PinoLopez</a> · Live demo for recruiters and stakeholders</p>
+            <p>Simple demo · Create any number of groups · Name length: 5-30 chars · Join/leave with user IDs</p>
+            <p class="mt-2">GitHub: <a href="https://github.com/PinoLopez" class="text-blue-400 hover:underline">PinoLopez</a> · Live demo for recruiters</p>
         </div>
     </div>
 
@@ -248,10 +216,7 @@
             const STORAGE_NEXT_GROUP_ID = 'nextGroupId';
             const STORAGE_NEXT_USER_ID = 'nextUserId';
 
-            // ----- ALL POSSIBLE SUBJECTS -----
-            const ALL_SUBJECTS = ['Math', 'Chemistry', 'Physics'];
-
-            // ----- INITIAL SAMPLE DATA (matches your test cases) -----
+            // ----- INITIAL SAMPLE DATA -----
             const SAMPLE_USERS = [
                 { id: 1, name: 'Miguel' },
                 { id: 2, name: 'Manuel' },
@@ -265,21 +230,21 @@
                     studyGroupId: 1, 
                     name: 'Math Wizards', 
                     subject: 'Math', 
-                    createDate: new Date(Date.now() - 3*86400000).toISOString(), // 3 days ago
+                    createDate: new Date(Date.now() - 3*86400000).toISOString(),
                     users: [1, 3] // Miguel, Maria
                 },
                 { 
                     studyGroupId: 2, 
                     name: 'Chemistry Lab', 
                     subject: 'Chemistry', 
-                    createDate: new Date(Date.now() - 2*86400000).toISOString(), // 2 days ago
+                    createDate: new Date(Date.now() - 2*86400000).toISOString(),
                     users: [2, 4] // Manuel, John
                 },
                 { 
                     studyGroupId: 3, 
                     name: 'Physics 101', 
                     subject: 'Physics', 
-                    createDate: new Date(Date.now() - 1*86400000).toISOString(), // 1 day ago
+                    createDate: new Date(Date.now() - 1*86400000).toISOString(),
                     users: [5] // Sarah
                 }
             ];
@@ -309,44 +274,6 @@
             }
             function saveGroups(groups) {
                 localStorage.setItem(STORAGE_GROUPS, JSON.stringify(groups));
-            }
-
-            // ----- NEW FUNCTION: Get available subjects (not taken) -----
-            function getAvailableSubjects() {
-                const groups = getGroups();
-                const takenSubjects = groups.map(g => g.subject);
-                return ALL_SUBJECTS.filter(s => !takenSubjects.includes(s));
-            }
-
-            // ----- NEW FUNCTION: Update subject dropdown in create form -----
-            function updateSubjectDropdown() {
-                const select = document.getElementById('groupSubject');
-                const msg = document.getElementById('availableSubjectsMsg');
-                const available = getAvailableSubjects();
-                
-                if (available.length === 0) {
-                    select.innerHTML = '<option value="" disabled selected>No subjects available</option>';
-                    select.disabled = true;
-                    msg.innerText = '⚠️ All subjects are taken. Delete a group first.';
-                    document.getElementById('createGroupBtn').disabled = true;
-                    document.getElementById('createGroupBtn').classList.add('opacity-50', 'cursor-not-allowed');
-                } else {
-                    select.disabled = false;
-                    document.getElementById('createGroupBtn').disabled = false;
-                    document.getElementById('createGroupBtn').classList.remove('opacity-50', 'cursor-not-allowed');
-                    
-                    let options = '';
-                    available.forEach(subject => {
-                        options += `<option value="${subject}">${subject}</option>`;
-                    });
-                    select.innerHTML = options;
-                    
-                    if (available.length === 1) {
-                        msg.innerText = `📌 Only ${available[0]} is available`;
-                    } else {
-                        msg.innerText = `📌 Available: ${available.join(', ')}`;
-                    }
-                }
             }
 
             // ----- RENDER FUNCTIONS -----
@@ -410,7 +337,6 @@
                     container.innerHTML = html;
                 }
                 updateStats();
-                updateSubjectDropdown(); // Update dropdown after any change
             }
 
             function renderUsers() {
@@ -475,7 +401,7 @@
 
             // ----- BUSINESS LOGIC -----
             window.joinGroup = function(groupId) {
-                const userId = prompt('Enter user ID to join (see Users tab):');
+                const userId = prompt('Enter user ID to join (see Users tab for IDs):');
                 if (!userId) return;
                 const uid = parseInt(userId);
                 if (isNaN(uid)) { alert('Invalid ID'); return; }
@@ -528,10 +454,7 @@
                         }
                     });
                     
-                    if (tabId === 'groups') {
-                        renderGroups();
-                        updateSubjectDropdown();
-                    }
+                    if (tabId === 'groups') renderGroups();
                     if (tabId === 'users') renderUsers();
                     if (tabId === 'mquery') renderMQuery();
                 }
@@ -547,12 +470,6 @@
                     const subject = document.getElementById('groupSubject').value;
                     const msg = document.getElementById('createMessage');
 
-                    if (!subject) {
-                        msg.innerText = '❌ No subjects available';
-                        msg.classList.add('text-red-400');
-                        return;
-                    }
-
                     if (name.length < 5 || name.length > 30) {
                         msg.innerText = '❌ Name must be 5‑30 chars';
                         msg.classList.add('text-red-400');
@@ -560,12 +477,6 @@
                     }
 
                     const groups = getGroups();
-                    if (groups.some(g => g.subject === subject)) {
-                        msg.innerText = '❌ A group for this subject already exists';
-                        msg.classList.add('text-red-400');
-                        return;
-                    }
-
                     const nextId = parseInt(localStorage.getItem(STORAGE_NEXT_GROUP_ID) || '4');
                     const newGroup = {
                         studyGroupId: nextId,
@@ -583,7 +494,6 @@
                     document.getElementById('groupName').value = '';
                     setTimeout(() => msg.innerText = '', 2000);
                     renderGroups();
-                    updateSubjectDropdown();
                 });
 
                 document.getElementById('applyFilterBtn').addEventListener('click', renderGroups);
@@ -617,7 +527,6 @@
                 // Initial renders
                 renderGroups();
                 renderUsers();
-                updateSubjectDropdown();
             });
         })();
     </script>
