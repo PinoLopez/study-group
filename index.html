@@ -3,18 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Groups · Juan Pino</title>
+    <title>Study Groups · Juan Pino · Demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .fade-in { animation: fadeIn 0.3s ease-out; }
         .tab-active { border-bottom: 2px solid #3b82f6; color: white; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; }
+        .modal-content { background: #1f2937; max-width: 800px; margin: 50px auto; padding: 30px; border-radius: 20px; max-height: 80vh; overflow-y: auto; }
     </style>
 </head>
 <body class="bg-gray-950 text-white font-sans antialiased">
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">About This Demo</h2>
+                <button onclick="closeHelp()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4 text-gray-300">
+                <p><span class="text-blue-400 font-bold">Original Task:</span> Study group feature for students</p>
+                <p>This demo replicates the .NET API functionality from <a href="https://github.com/PinoLopez/study-group" target="_blank" class="text-blue-400 hover:underline">github.com/PinoLopez/study-group</a></p>
+                
+                <div class="bg-gray-800 p-4 rounded-xl mt-4">
+                    <h3 class="font-semibold text-lg mb-2">📋 Domain Rules (from StudyGroup.cs)</h3>
+                    <ul class="list-disc list-inside text-sm space-y-1">
+                        <li>Group name: <span class="text-yellow-400">5-30 characters</span></li>
+                        <li>Valid subjects: <span class="text-yellow-400">Math, Chemistry, Physics</span></li>
+                        <li>Creation date: <span class="text-yellow-400">auto-recorded</span></li>
+                        <li>Users can join/leave (no duplicates)</li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-800 p-4 rounded-xl">
+                    <h3 class="font-semibold text-lg mb-2">🔌 API Endpoints (from StudyGroupController.cs)</h3>
+                    <pre class="text-xs bg-gray-900 p-3 rounded overflow-x-auto">
+POST   /studygroup/create
+GET    /studygroup/all?sort=desc
+GET    /studygroup/search?subject=Math&sort=desc
+POST   /studygroup/join?studyGroupId=1&userId=100
+POST   /studygroup/leave?studyGroupId=1&userId=100
+GET    /studygroup/debug/query-m-users</pre>
+                </div>
+
+                <div class="bg-gray-800 p-4 rounded-xl">
+                    <h3 class="font-semibold text-lg mb-2">🧪 Test Coverage (from your documents)</h3>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div>✓ 9 Unit Tests (StudyGroup.cs)</div>
+                        <div>✓ 15 Component Tests (API)</div>
+                        <div>✓ 1 SQL Query Test</div>
+                        <div>✓ 18 Manual E2E Tests</div>
+                    </div>
+                </div>
+
+                <p class="text-xs text-gray-500 mt-4">All data stored in your browser's localStorage · Refresh to reset</p>
+            </div>
+        </div>
+    </div>
+
     <div class="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <!-- Header with your name -->
+        <!-- Header with help button -->
         <div class="flex items-center justify-between mb-8">
             <div class="flex items-center gap-3">
                 <div class="bg-blue-600 text-white text-2xl w-12 h-12 rounded-xl flex items-center justify-center shadow-xl">
@@ -22,21 +71,24 @@
                 </div>
                 <div>
                     <h1 class="text-3xl font-bold">Study Groups</h1>
-                    <p class="text-gray-400 text-sm">by Juan Pino · Simple demo for recruiters</p>
+                    <p class="text-gray-400 text-sm">by Juan Pino · Simple demo web</p>
                 </div>
             </div>
-            <div class="flex gap-2 text-sm text-gray-400">
-                <span class="px-3 py-1 bg-gray-800 rounded-full">Math</span>
-                <span class="px-3 py-1 bg-gray-800 rounded-full">Chemistry</span>
-                <span class="px-3 py-1 bg-gray-800 rounded-full">Physics</span>
+            <div class="flex gap-2">
+                <button onclick="openHelp()" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition">
+                    <i class="fas fa-question-circle"></i> Help / Info
+                </button>
+                <a href="https://github.com/PinoLopez/study-group" target="_blank" class="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
             </div>
         </div>
 
         <!-- Tabs -->
         <div class="border-b border-gray-800 mb-6">
-            <div class="flex gap-6">
+            <div class="flex gap-6 flex-wrap">
                 <button id="tab-groups" class="tab-btn px-1 py-3 text-gray-400 hover:text-white font-medium text-sm uppercase tracking-wider" data-tab="groups">
-                    <i class="fas fa-layer-group mr-2"></i>All Groups
+                    <i class="fas fa-layer-group mr-2"></i>Groups
                 </button>
                 <button id="tab-users" class="tab-btn px-1 py-3 text-gray-400 hover:text-white font-medium text-sm uppercase tracking-wider" data-tab="users">
                     <i class="fas fa-user mr-2"></i>Users
@@ -44,12 +96,18 @@
                 <button id="tab-mquery" class="tab-btn px-1 py-3 text-gray-400 hover:text-white font-medium text-sm uppercase tracking-wider" data-tab="mquery">
                     <i class="fas fa-magnifying-glass mr-2"></i>M‑Users Query
                 </button>
+                <button id="tab-testcases" class="tab-btn px-1 py-3 text-gray-400 hover:text-white font-medium text-sm uppercase tracking-wider" data-tab="testcases">
+                    <i class="fas fa-vial mr-2"></i>Test Cases
+                </button>
+                <button id="tab-api" class="tab-btn px-1 py-3 text-gray-400 hover:text-white font-medium text-sm uppercase tracking-wider" data-tab="api">
+                    <i class="fas fa-code mr-2"></i>API Reference
+                </button>
             </div>
         </div>
 
         <!-- Tab Content -->
         <div id="tab-content">
-            <!-- GROUPS TAB -->
+            <!-- GROUPS TAB (same as before) -->
             <div id="groups-tab" class="tab-pane">
                 <div class="grid lg:grid-cols-3 gap-6">
                     <!-- Left: Create Form + Filters -->
@@ -125,9 +183,7 @@
                                 <h2 class="text-lg font-semibold"><i class="fas fa-list-ul mr-2 text-blue-400"></i>Study Groups</h2>
                                 <span class="text-xs bg-gray-800 px-3 py-1 rounded-full" id="groupsCount">0 groups</span>
                             </div>
-                            <div id="groupsList" class="space-y-3 max-h-[500px] overflow-y-auto pr-1 custom-scroll">
-                                <!-- Dynamically filled -->
-                            </div>
+                            <div id="groupsList" class="space-y-3 max-h-[500px] overflow-y-auto pr-1 custom-scroll"></div>
                             <div id="noGroupsMsg" class="text-center py-12 text-gray-600 hidden">
                                 <i class="fas fa-folder-open text-4xl mb-2"></i>
                                 <p>No groups match the filter</p>
@@ -137,23 +193,19 @@
                 </div>
             </div>
 
-            <!-- USERS TAB -->
+            <!-- USERS TAB (same as before) -->
             <div id="users-tab" class="tab-pane hidden">
                 <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-xl font-semibold"><i class="fas fa-user-graduate mr-2 text-blue-400"></i>Users</h2>
-                        <div class="flex gap-2">
-                            <button id="resetUsersBtn" class="text-xs bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg transition">
-                                <i class="fas fa-rotate mr-1"></i>Reset to sample
-                            </button>
-                        </div>
+                        <button id="resetUsersBtn" class="text-xs bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg transition">
+                            <i class="fas fa-rotate mr-1"></i>Reset to sample
+                        </button>
                     </div>
                     <div class="grid md:grid-cols-2 gap-6">
                         <div>
                             <h3 class="text-sm font-medium text-gray-400 mb-3">Existing users</h3>
-                            <div id="usersList" class="space-y-2 max-h-96 overflow-y-auto">
-                                <!-- users go here -->
-                            </div>
+                            <div id="usersList" class="space-y-2 max-h-96 overflow-y-auto"></div>
                         </div>
                         <div>
                             <h3 class="text-sm font-medium text-gray-400 mb-3">Add new user</h3>
@@ -178,27 +230,129 @@
                         </div>
                         <div>
                             <h2 class="text-xl font-semibold">Groups with users whose name starts with 'M'</h2>
-                            <p class="text-sm text-gray-400">Shows groups containing Miguel, Manuel, or Maria</p>
+                            <p class="text-sm text-gray-400">SQL equivalent: <span class="font-mono bg-gray-800 px-2 py-1 rounded">SELECT * FROM StudyGroups WHERE EXISTS (SELECT 1 FROM Users WHERE name LIKE 'M%')</span></p>
                         </div>
                     </div>
                     <button id="runMQueryBtn" class="mb-6 bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl font-medium flex items-center gap-2">
                         <i class="fas fa-play"></i> Show groups with M-users
                     </button>
-                    <div id="mQueryResults" class="space-y-3">
-                        <!-- results appear here -->
-                    </div>
+                    <div id="mQueryResults" class="space-y-3"></div>
                     <div id="noMResults" class="text-center py-12 text-gray-600 hidden">
                         <i class="fas fa-search text-4xl mb-2"></i>
                         <p>No groups with users starting with 'M'</p>
                     </div>
                 </div>
             </div>
+
+            <!-- TEST CASES TAB (NEW) -->
+            <div id="testcases-tab" class="tab-pane hidden">
+                <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                    <h2 class="text-xl font-semibold mb-6"><i class="fas fa-vial mr-2 text-blue-400"></i>18 Test Cases (from Juan Pino Test task)</h2>
+                    <div class="grid md:grid-cols-2 gap-4 text-sm max-h-[600px] overflow-y-auto pr-2">
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">1.</span> Create "Math Study" (Math) ✅ <button onclick="tryTestCase(1)" class="text-xs bg-blue-600 px-2 py-1 rounded ml-2">Try</button>
+                            <p class="text-gray-400 text-xs mt-1">Valid name (10 chars), subject Math</p>
+                        </div>
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">2.</span> Create "Math" (too short) ❌
+                            <p class="text-gray-400 text-xs mt-1">Should fail: name length 4</p>
+                        </div>
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">3.</span> Create 31-char name ❌
+                            <p class="text-gray-400 text-xs mt-1">Should fail: name too long</p>
+                        </div>
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">4.</span> Create with "Biology" ❌
+                            <p class="text-gray-400 text-xs mt-1">Invalid subject</p>
+                        </div>
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">5.</span> Duplicate subject ⚠️
+                            <p class="text-gray-400 text-xs mt-1">Now allowed (simplified demo)</p>
+                        </div>
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">6-8.</span> Join group tests
+                            <p class="text-gray-400 text-xs mt-1">Use IDs: group 1, user 1 (Miguel)</p>
+                        </div>
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">9.</span> View all groups
+                            <p class="text-gray-400 text-xs mt-1">Click "Groups" tab</p>
+                        </div>
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">10-12.</span> Filter & sort
+                            <p class="text-gray-400 text-xs mt-1">Use dropdowns in Groups tab</p>
+                        </div>
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">13-14.</span> Leave group tests
+                            <p class="text-gray-400 text-xs mt-1">Use Leave button on any group</p>
+                        </div>
+                        <div class="bg-gray-800/50 p-4 rounded-xl">
+                            <span class="text-blue-400 font-bold">15-17.</span> E2E scenarios
+                            <p class="text-gray-400 text-xs mt-1">Create → View → Join → Leave → Filter</p>
+                        </div>
+                        <div class="bg-gray-800/50 p-4 rounded-xl col-span-2">
+                            <span class="text-blue-400 font-bold">18.</span> M-users query <button onclick="document.getElementById('tab-mquery').click()" class="text-xs bg-purple-600 px-2 py-1 rounded ml-2">Go to query</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API REFERENCE TAB (NEW) -->
+            <div id="api-tab" class="tab-pane hidden">
+                <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
+                    <h2 class="text-xl font-semibold mb-6"><i class="fas fa-code mr-2 text-blue-400"></i>API Reference (from StudyGroupController.cs)</h2>
+                    <div class="space-y-4">
+                        <div class="bg-gray-800 p-4 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-green-600 text-xs px-2 py-1 rounded">POST</span>
+                                <code class="text-sm">/studygroup/create</code>
+                            </div>
+                            <p class="text-gray-400 text-sm mt-2">Create new study group. Body: { "name": "string", "subject": "Math|Chemistry|Physics" }</p>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-blue-600 text-xs px-2 py-1 rounded">GET</span>
+                                <code class="text-sm">/studygroup/all?sort=desc</code>
+                            </div>
+                            <p class="text-gray-400 text-sm mt-2">Get all groups, sorted by creation date (asc/desc)</p>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-blue-600 text-xs px-2 py-1 rounded">GET</span>
+                                <code class="text-sm">/studygroup/search?subject=Math&sort=desc</code>
+                            </div>
+                            <p class="text-gray-400 text-sm mt-2">Filter by subject, sorted by date</p>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-green-600 text-xs px-2 py-1 rounded">POST</span>
+                                <code class="text-sm">/studygroup/join?studyGroupId=1&userId=100</code>
+                            </div>
+                            <p class="text-gray-400 text-sm mt-2">User joins a study group</p>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-green-600 text-xs px-2 py-1 rounded">POST</span>
+                                <code class="text-sm">/studygroup/leave?studyGroupId=1&userId=100</code>
+                            </div>
+                            <p class="text-gray-400 text-sm mt-2">User leaves a study group</p>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <span class="bg-purple-600 text-xs px-2 py-1 rounded">GET</span>
+                                <code class="text-sm">/studygroup/debug/query-m-users</code>
+                            </div>
+                            <p class="text-gray-400 text-sm mt-2">Custom SQL query: groups with users named like 'M%'</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-6">All endpoints are implemented in the <a href="https://github.com/PinoLopez/study-group/blob/main/Solution/TestAppAPI/StudyGroupController.cs" target="_blank" class="text-blue-400 hover:underline">StudyGroupController.cs</a></p>
+                </div>
+            </div>
         </div>
 
         <!-- Footer -->
         <div class="mt-8 text-center text-xs text-gray-600 border-t border-gray-800 pt-6">
-            <p>Simple demo · Create any number of groups · Name length: 5-30 chars · Join/leave with user IDs</p>
-            <p class="mt-2">GitHub: <a href="https://github.com/PinoLopez" class="text-blue-400 hover:underline">PinoLopez</a> · Live demo for recruiters</p>
+            <p>Simple demo web · Complete implementation of the study group feature · Data stored in browser</p>
+            <p class="mt-2">GitHub: <a href="https://github.com/PinoLopez" class="text-blue-400 hover:underline">PinoLopez</a> · <a href="https://github.com/PinoLopez/study-group" class="text-blue-400 hover:underline">study-group repository</a></p>
         </div>
     </div>
 
@@ -209,326 +363,245 @@
     </style>
 
     <script>
-        (function() {
-            // ----- STORAGE KEYS -----
-            const STORAGE_GROUPS = 'studyGroups';
-            const STORAGE_USERS = 'users';
-            const STORAGE_NEXT_GROUP_ID = 'nextGroupId';
-            const STORAGE_NEXT_USER_ID = 'nextUserId';
+        // Modal functions
+        function openHelp() { document.getElementById('helpModal').style.display = 'block'; }
+        function closeHelp() { document.getElementById('helpModal').style.display = 'none'; }
+        window.onclick = function(e) { if (e.target == document.getElementById('helpModal')) closeHelp(); }
 
-            // ----- INITIAL SAMPLE DATA -----
-            const SAMPLE_USERS = [
-                { id: 1, name: 'Miguel' },
-                { id: 2, name: 'Manuel' },
-                { id: 3, name: 'Maria' },
-                { id: 4, name: 'John' },
-                { id: 5, name: 'Sarah' }
-            ];
-
-            const SAMPLE_GROUPS = [
-                { 
-                    studyGroupId: 1, 
-                    name: 'Math Wizards', 
-                    subject: 'Math', 
-                    createDate: new Date(Date.now() - 3*86400000).toISOString(),
-                    users: [1, 3] // Miguel, Maria
-                },
-                { 
-                    studyGroupId: 2, 
-                    name: 'Chemistry Lab', 
-                    subject: 'Chemistry', 
-                    createDate: new Date(Date.now() - 2*86400000).toISOString(),
-                    users: [2, 4] // Manuel, John
-                },
-                { 
-                    studyGroupId: 3, 
-                    name: 'Physics 101', 
-                    subject: 'Physics', 
-                    createDate: new Date(Date.now() - 1*86400000).toISOString(),
-                    users: [5] // Sarah
-                }
-            ];
-
-            // ----- INITIALIZE STORAGE -----
-            function initializeData() {
-                if (!localStorage.getItem(STORAGE_USERS)) {
-                    localStorage.setItem(STORAGE_USERS, JSON.stringify(SAMPLE_USERS));
-                    localStorage.setItem(STORAGE_NEXT_USER_ID, '6');
-                }
-                if (!localStorage.getItem(STORAGE_GROUPS)) {
-                    localStorage.setItem(STORAGE_GROUPS, JSON.stringify(SAMPLE_GROUPS));
-                    localStorage.setItem(STORAGE_NEXT_GROUP_ID, '4');
-                }
+        function tryTestCase(num) {
+            if (num === 1) {
+                document.getElementById('groupName').value = 'Math Study';
+                document.getElementById('groupSubject').value = 'Math';
+                document.getElementById('createGroupBtn').click();
             }
-            initializeData();
+            // Add more test helpers as needed
+        }
 
-            // ----- HELPER FUNCTIONS -----
-            function getUsers() {
-                return JSON.parse(localStorage.getItem(STORAGE_USERS)) || [];
+        // ----- STORAGE KEYS -----
+        const STORAGE_GROUPS = 'studyGroups';
+        const STORAGE_USERS = 'users';
+        const STORAGE_NEXT_GROUP_ID = 'nextGroupId';
+        const STORAGE_NEXT_USER_ID = 'nextUserId';
+
+        // ----- INITIAL SAMPLE DATA -----
+        const SAMPLE_USERS = [
+            { id: 1, name: 'Miguel' },
+            { id: 2, name: 'Manuel' },
+            { id: 3, name: 'Maria' },
+            { id: 4, name: 'John' },
+            { id: 5, name: 'Sarah' }
+        ];
+
+        const SAMPLE_GROUPS = [
+            { studyGroupId: 1, name: 'Math Wizards', subject: 'Math', createDate: new Date(Date.now() - 3*86400000).toISOString(), users: [1, 3] },
+            { studyGroupId: 2, name: 'Chemistry Lab', subject: 'Chemistry', createDate: new Date(Date.now() - 2*86400000).toISOString(), users: [2, 4] },
+            { studyGroupId: 3, name: 'Physics 101', subject: 'Physics', createDate: new Date(Date.now() - 1*86400000).toISOString(), users: [5] }
+        ];
+
+        function initializeData() {
+            if (!localStorage.getItem(STORAGE_USERS)) {
+                localStorage.setItem(STORAGE_USERS, JSON.stringify(SAMPLE_USERS));
+                localStorage.setItem(STORAGE_NEXT_USER_ID, '6');
             }
-            function getGroups() {
-                return JSON.parse(localStorage.getItem(STORAGE_GROUPS)) || [];
+            if (!localStorage.getItem(STORAGE_GROUPS)) {
+                localStorage.setItem(STORAGE_GROUPS, JSON.stringify(SAMPLE_GROUPS));
+                localStorage.setItem(STORAGE_NEXT_GROUP_ID, '4');
             }
-            function saveUsers(users) {
-                localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
-            }
-            function saveGroups(groups) {
-                localStorage.setItem(STORAGE_GROUPS, JSON.stringify(groups));
-            }
+        }
+        initializeData();
 
-            // ----- RENDER FUNCTIONS -----
-            function renderGroups() {
-                const filterSubject = document.getElementById('filterSubject').value;
-                const sortOrder = document.getElementById('sortOrder').value;
+        function getUsers() { return JSON.parse(localStorage.getItem(STORAGE_USERS)) || []; }
+        function getGroups() { return JSON.parse(localStorage.getItem(STORAGE_GROUPS)) || []; }
+        function saveUsers(users) { localStorage.setItem(STORAGE_USERS, JSON.stringify(users)); }
+        function saveGroups(groups) { localStorage.setItem(STORAGE_GROUPS, JSON.stringify(groups)); }
 
-                let groups = getGroups();
-                const users = getUsers();
+        function renderGroups() {
+            const filterSubject = document.getElementById('filterSubject').value;
+            const sortOrder = document.getElementById('sortOrder').value;
+            let groups = getGroups();
+            const users = getUsers();
 
-                // Filter
-                if (filterSubject !== 'All') {
-                    groups = groups.filter(g => g.subject === filterSubject);
-                }
+            if (filterSubject !== 'All') groups = groups.filter(g => g.subject === filterSubject);
+            groups.sort((a, b) => {
+                const dateA = new Date(a.createDate), dateB = new Date(b.createDate);
+                return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+            });
 
-                // Sort
-                groups.sort((a, b) => {
-                    const dateA = new Date(a.createDate);
-                    const dateB = new Date(b.createDate);
-                    return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-                });
+            const container = document.getElementById('groupsList');
+            const noMsg = document.getElementById('noGroupsMsg');
+            const countSpan = document.getElementById('groupsCount');
 
-                const container = document.getElementById('groupsList');
-                const noMsg = document.getElementById('noGroupsMsg');
-                const countSpan = document.getElementById('groupsCount');
-
-                if (groups.length === 0) {
-                    container.innerHTML = '';
-                    noMsg.classList.remove('hidden');
-                    countSpan.innerText = '0 groups';
-                } else {
-                    noMsg.classList.add('hidden');
-                    countSpan.innerText = groups.length + ' group' + (groups.length > 1 ? 's' : '');
-                    
-                    let html = '';
-                    groups.forEach(g => {
-                        const memberNames = g.users.map(uid => {
-                            const u = users.find(u => u.id === uid);
-                            return u ? u.name : '?';
-                        }).join(', ') || 'none';
-
-                        html += `
-                            <div class="bg-gray-800/70 rounded-xl p-4 border border-gray-700 fade-in">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <h3 class="font-semibold text-lg">${g.name}</h3>
-                                        <div class="flex gap-3 text-sm text-gray-400 mt-1">
-                                            <span class="bg-${g.subject === 'Math' ? 'blue' : g.subject === 'Chemistry' ? 'green' : 'purple'}-600/20 px-2 py-0.5 rounded-full text-xs">${g.subject}</span>
-                                            <span><i class="far fa-calendar mr-1"></i>${new Date(g.createDate).toLocaleDateString()}</span>
-                                        </div>
-                                        <p class="text-xs text-gray-500 mt-2"><i class="fas fa-user mr-1"></i>Members: ${memberNames}</p>
+            if (groups.length === 0) {
+                container.innerHTML = '';
+                noMsg.classList.remove('hidden');
+                countSpan.innerText = '0 groups';
+            } else {
+                noMsg.classList.add('hidden');
+                countSpan.innerText = groups.length + ' group' + (groups.length > 1 ? 's' : '');
+                let html = '';
+                groups.forEach(g => {
+                    const memberNames = g.users.map(uid => users.find(u => u.id === uid)?.name || '?').join(', ') || 'none';
+                    html += `
+                        <div class="bg-gray-800/70 rounded-xl p-4 border border-gray-700 fade-in">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="font-semibold text-lg">${g.name}</h3>
+                                    <div class="flex gap-3 text-sm text-gray-400 mt-1">
+                                        <span class="bg-${g.subject === 'Math' ? 'blue' : g.subject === 'Chemistry' ? 'green' : 'purple'}-600/20 px-2 py-0.5 rounded-full text-xs">${g.subject}</span>
+                                        <span><i class="far fa-calendar mr-1"></i>${new Date(g.createDate).toLocaleDateString()}</span>
                                     </div>
-                                    <div class="flex gap-2">
-                                        <button onclick="joinGroup(${g.studyGroupId})" class="text-xs bg-green-600/20 hover:bg-green-600/40 text-green-400 px-3 py-1.5 rounded-lg transition"><i class="fas fa-sign-in-alt mr-1"></i>Join</button>
-                                        <button onclick="leaveGroup(${g.studyGroupId})" class="text-xs bg-red-600/20 hover:bg-red-600/40 text-red-400 px-3 py-1.5 rounded-lg transition"><i class="fas fa-sign-out-alt mr-1"></i>Leave</button>
-                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2"><i class="fas fa-user mr-1"></i>Members: ${memberNames}</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="joinGroup(${g.studyGroupId})" class="text-xs bg-green-600/20 hover:bg-green-600/40 text-green-400 px-3 py-1.5 rounded-lg transition"><i class="fas fa-sign-in-alt mr-1"></i>Join</button>
+                                    <button onclick="leaveGroup(${g.studyGroupId})" class="text-xs bg-red-600/20 hover:bg-red-600/40 text-red-400 px-3 py-1.5 rounded-lg transition"><i class="fas fa-sign-out-alt mr-1"></i>Leave</button>
                                 </div>
                             </div>
-                        `;
-                    });
-                    container.innerHTML = html;
-                }
-                updateStats();
-            }
-
-            function renderUsers() {
-                const users = getUsers();
-                const container = document.getElementById('usersList');
-                let html = '';
-                users.forEach(u => {
-                    html += `
-                        <div class="bg-gray-800/50 rounded-lg p-3 flex items-center justify-between">
-                            <span><i class="fas fa-user text-gray-500 mr-2"></i>${u.name}</span>
-                            <span class="text-xs text-gray-500">ID: ${u.id}</span>
                         </div>
                     `;
                 });
                 container.innerHTML = html;
-                updateStats();
             }
+            updateStats();
+        }
 
-            function renderMQuery() {
-                const users = getUsers();
-                const groups = getGroups();
-                const mUserIds = users.filter(u => u.name.startsWith('M')).map(u => u.id);
-                
-                const resultGroups = groups.filter(g => 
-                    g.users.some(uid => mUserIds.includes(uid))
-                );
+        function renderUsers() {
+            const users = getUsers();
+            let html = '';
+            users.forEach(u => {
+                html += `<div class="bg-gray-800/50 rounded-lg p-3 flex items-center justify-between"><span><i class="fas fa-user text-gray-500 mr-2"></i>${u.name}</span><span class="text-xs text-gray-500">ID: ${u.id}</span></div>`;
+            });
+            document.getElementById('usersList').innerHTML = html;
+            updateStats();
+        }
 
-                const container = document.getElementById('mQueryResults');
-                const noMsg = document.getElementById('noMResults');
+        function renderMQuery() {
+            const users = getUsers();
+            const groups = getGroups();
+            const mUserIds = users.filter(u => u.name.startsWith('M')).map(u => u.id);
+            const resultGroups = groups.filter(g => g.users.some(uid => mUserIds.includes(uid)));
+            const container = document.getElementById('mQueryResults');
+            const noMsg = document.getElementById('noMResults');
 
-                if (resultGroups.length === 0) {
-                    container.innerHTML = '';
-                    noMsg.classList.remove('hidden');
-                } else {
-                    noMsg.classList.add('hidden');
-                    let html = '';
-                    resultGroups.forEach(g => {
-                        const members = g.users.map(uid => {
-                            const u = users.find(u => u.id === uid);
-                            return u ? u.name : '?';
-                        }).join(', ');
-                        html += `
-                            <div class="bg-gray-800/70 rounded-xl p-4 border border-gray-700">
-                                <div class="font-semibold">${g.name} (${g.subject})</div>
-                                <div class="text-sm text-gray-400 mt-1">Members: ${members}</div>
-                                <div class="text-xs text-gray-500 mt-1">Created: ${new Date(g.createDate).toLocaleDateString()}</div>
-                            </div>
-                        `;
-                    });
-                    container.innerHTML = html;
-                }
+            if (resultGroups.length === 0) {
+                container.innerHTML = '';
+                noMsg.classList.remove('hidden');
+            } else {
+                noMsg.classList.add('hidden');
+                let html = '';
+                resultGroups.forEach(g => {
+                    const members = g.users.map(uid => users.find(u => u.id === uid)?.name || '?').join(', ');
+                    html += `<div class="bg-gray-800/70 rounded-xl p-4 border border-gray-700"><div class="font-semibold">${g.name} (${g.subject})</div><div class="text-sm text-gray-400 mt-1">Members: ${members}</div><div class="text-xs text-gray-500 mt-1">Created: ${new Date(g.createDate).toLocaleDateString()}</div></div>`;
+                });
+                container.innerHTML = html;
             }
+        }
 
-            function updateStats() {
-                const groups = getGroups();
-                const users = getUsers();
-                const memberships = groups.reduce((acc, g) => acc + g.users.length, 0);
-                document.getElementById('statGroups').innerText = groups.length;
-                document.getElementById('statUsers').innerText = users.length;
-                document.getElementById('statMemberships').innerText = memberships;
-            }
+        function updateStats() {
+            const groups = getGroups(), users = getUsers();
+            const memberships = groups.reduce((acc, g) => acc + g.users.length, 0);
+            document.getElementById('statGroups').innerText = groups.length;
+            document.getElementById('statUsers').innerText = users.length;
+            document.getElementById('statMemberships').innerText = memberships;
+        }
 
-            // ----- BUSINESS LOGIC -----
-            window.joinGroup = function(groupId) {
-                const userId = prompt('Enter user ID to join (see Users tab for IDs):');
-                if (!userId) return;
-                const uid = parseInt(userId);
-                if (isNaN(uid)) { alert('Invalid ID'); return; }
+        window.joinGroup = function(groupId) {
+            const userId = prompt('Enter user ID to join (see Users tab):');
+            if (!userId) return;
+            const uid = parseInt(userId);
+            if (isNaN(uid)) { alert('Invalid ID'); return; }
+            const groups = getGroups(), users = getUsers();
+            const group = groups.find(g => g.studyGroupId === groupId);
+            if (!group) { alert('Group not found'); return; }
+            const user = users.find(u => u.id === uid);
+            if (!user) { alert('User not found'); return; }
+            if (group.users.includes(uid)) { alert('User already in group'); return; }
+            group.users.push(uid);
+            saveGroups(groups);
+            renderGroups();
+            alert(`✅ ${user.name} joined ${group.name}`);
+        };
 
-                const groups = getGroups();
-                const users = getUsers();
-                const group = groups.find(g => g.studyGroupId === groupId);
-                if (!group) { alert('Group not found'); return; }
-                const user = users.find(u => u.id === uid);
-                if (!user) { alert('User not found'); return; }
-                if (group.users.includes(uid)) { alert('User already in group'); return; }
+        window.leaveGroup = function(groupId) {
+            const userId = prompt('Enter user ID to leave:');
+            if (!userId) return;
+            const uid = parseInt(userId);
+            if (isNaN(uid)) { alert('Invalid ID'); return; }
+            const groups = getGroups();
+            const group = groups.find(g => g.studyGroupId === groupId);
+            if (!group) { alert('Group not found'); return; }
+            if (!group.users.includes(uid)) { alert('User not in group'); return; }
+            group.users = group.users.filter(id => id !== uid);
+            saveGroups(groups);
+            renderGroups();
+            alert(`User left the group`);
+        };
 
-                group.users.push(uid);
-                saveGroups(groups);
-                renderGroups();
-                alert(`✅ ${user.name} joined ${group.name}`);
-            };
-
-            window.leaveGroup = function(groupId) {
-                const userId = prompt('Enter user ID to leave:');
-                if (!userId) return;
-                const uid = parseInt(userId);
-                if (isNaN(uid)) { alert('Invalid ID'); return; }
-
-                const groups = getGroups();
-                const group = groups.find(g => g.studyGroupId === groupId);
-                if (!group) { alert('Group not found'); return; }
-                if (!group.users.includes(uid)) { alert('User not in group'); return; }
-
-                group.users = group.users.filter(id => id !== uid);
-                saveGroups(groups);
-                renderGroups();
-                alert(`User left the group`);
-            };
-
-            // ----- EVENT LISTENERS -----
-            document.addEventListener('DOMContentLoaded', function() {
-                // Tab switching
-                const tabBtns = document.querySelectorAll('.tab-btn');
-                const panes = document.querySelectorAll('.tab-pane');
-                
-                function activateTab(tabId) {
-                    panes.forEach(p => p.classList.add('hidden'));
-                    document.getElementById(tabId + '-tab').classList.remove('hidden');
-                    tabBtns.forEach(btn => {
-                        if (btn.dataset.tab === tabId) {
-                            btn.classList.add('tab-active', 'text-white');
-                        } else {
-                            btn.classList.remove('tab-active', 'text-white');
-                        }
-                    });
-                    
-                    if (tabId === 'groups') renderGroups();
-                    if (tabId === 'users') renderUsers();
-                    if (tabId === 'mquery') renderMQuery();
-                }
-
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const panes = document.querySelectorAll('.tab-pane');
+            
+            function activateTab(tabId) {
+                panes.forEach(p => p.classList.add('hidden'));
+                document.getElementById(tabId + '-tab').classList.remove('hidden');
                 tabBtns.forEach(btn => {
-                    btn.addEventListener('click', () => activateTab(btn.dataset.tab));
+                    if (btn.dataset.tab === tabId) btn.classList.add('tab-active', 'text-white');
+                    else btn.classList.remove('tab-active', 'text-white');
                 });
-                activateTab('groups');
+                if (tabId === 'groups') renderGroups();
+                if (tabId === 'users') renderUsers();
+                if (tabId === 'mquery') renderMQuery();
+            }
 
-                // Create group
-                document.getElementById('createGroupBtn').addEventListener('click', function() {
-                    const name = document.getElementById('groupName').value.trim();
-                    const subject = document.getElementById('groupSubject').value;
-                    const msg = document.getElementById('createMessage');
+            tabBtns.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tab)));
+            activateTab('groups');
 
-                    if (name.length < 5 || name.length > 30) {
-                        msg.innerText = '❌ Name must be 5‑30 chars';
-                        msg.classList.add('text-red-400');
-                        return;
-                    }
-
-                    const groups = getGroups();
-                    const nextId = parseInt(localStorage.getItem(STORAGE_NEXT_GROUP_ID) || '4');
-                    const newGroup = {
-                        studyGroupId: nextId,
-                        name: name,
-                        subject: subject,
-                        createDate: new Date().toISOString(),
-                        users: []
-                    };
-                    groups.push(newGroup);
-                    saveGroups(groups);
-                    localStorage.setItem(STORAGE_NEXT_GROUP_ID, (nextId + 1).toString());
-
-                    msg.innerText = '✅ Group created!';
-                    msg.classList.add('text-green-400');
-                    document.getElementById('groupName').value = '';
-                    setTimeout(() => msg.innerText = '', 2000);
-                    renderGroups();
-                });
-
-                document.getElementById('applyFilterBtn').addEventListener('click', renderGroups);
-
-                document.getElementById('addUserBtn').addEventListener('click', function() {
-                    const name = document.getElementById('newUserName').value.trim();
-                    const msg = document.getElementById('userMessage');
-                    if (!name) {
-                        msg.innerText = 'Name required';
-                        return;
-                    }
-                    const users = getUsers();
-                    const nextId = parseInt(localStorage.getItem(STORAGE_NEXT_USER_ID) || '6');
-                    users.push({ id: nextId, name: name });
-                    saveUsers(users);
-                    localStorage.setItem(STORAGE_NEXT_USER_ID, (nextId + 1).toString());
-                    document.getElementById('newUserName').value = '';
-                    msg.innerText = `✅ User added (ID: ${nextId})`;
-                    renderUsers();
-                    setTimeout(() => msg.innerText = '', 2000);
-                });
-
-                document.getElementById('resetUsersBtn').addEventListener('click', function() {
-                    saveUsers(SAMPLE_USERS);
-                    localStorage.setItem(STORAGE_NEXT_USER_ID, '6');
-                    renderUsers();
-                });
-
-                document.getElementById('runMQueryBtn').addEventListener('click', renderMQuery);
-
-                // Initial renders
+            document.getElementById('createGroupBtn').addEventListener('click', function() {
+                const name = document.getElementById('groupName').value.trim();
+                const subject = document.getElementById('groupSubject').value;
+                const msg = document.getElementById('createMessage');
+                if (name.length < 5 || name.length > 30) {
+                    msg.innerText = '❌ Name must be 5‑30 chars';
+                    msg.classList.add('text-red-400');
+                    return;
+                }
+                const groups = getGroups();
+                const nextId = parseInt(localStorage.getItem(STORAGE_NEXT_GROUP_ID) || '4');
+                groups.push({ studyGroupId: nextId, name, subject, createDate: new Date().toISOString(), users: [] });
+                saveGroups(groups);
+                localStorage.setItem(STORAGE_NEXT_GROUP_ID, (nextId + 1).toString());
+                msg.innerText = '✅ Group created!';
+                msg.classList.add('text-green-400');
+                document.getElementById('groupName').value = '';
+                setTimeout(() => msg.innerText = '', 2000);
                 renderGroups();
+            });
+
+            document.getElementById('applyFilterBtn').addEventListener('click', renderGroups);
+            document.getElementById('resetUsersBtn').addEventListener('click', function() {
+                saveUsers(SAMPLE_USERS);
+                localStorage.setItem(STORAGE_NEXT_USER_ID, '6');
                 renderUsers();
             });
-        })();
+            document.getElementById('addUserBtn').addEventListener('click', function() {
+                const name = document.getElementById('newUserName').value.trim();
+                const msg = document.getElementById('userMessage');
+                if (!name) { msg.innerText = 'Name required'; return; }
+                const users = getUsers();
+                const nextId = parseInt(localStorage.getItem(STORAGE_NEXT_USER_ID) || '6');
+                users.push({ id: nextId, name });
+                saveUsers(users);
+                localStorage.setItem(STORAGE_NEXT_USER_ID, (nextId + 1).toString());
+                document.getElementById('newUserName').value = '';
+                msg.innerText = `✅ User added (ID: ${nextId})`;
+                renderUsers();
+                setTimeout(() => msg.innerText = '', 2000);
+            });
+            document.getElementById('runMQueryBtn').addEventListener('click', renderMQuery);
+
+            renderGroups();
+            renderUsers();
+        });
     </script>
 </body>
 </html>
