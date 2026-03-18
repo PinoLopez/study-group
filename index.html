@@ -17,6 +17,7 @@
         .user-btn:hover { background: #4B5563; }
         .close-btn { float: right; font-size: 24px; cursor: pointer; color: #9CA3AF; }
         .close-btn:hover { color: white; }
+        .api-demo { background: #1a1f2e; border-radius: 12px; padding: 16px; margin-top: 12px; font-family: monospace; }
         .success-message { color: #10b981; }
         .error-message { color: #ef4444; }
     </style>
@@ -31,6 +32,18 @@
             </div>
             <p id="alertMessage" class="text-gray-300 mb-6"></p>
             <button onclick="closeAlertModal()" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg transition">OK</button>
+        </div>
+    </div>
+
+    <!-- API Response Modal -->
+    <div id="apiResponseModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold" id="apiResponseTitle">API Response</h3>
+                <span class="close-btn" onclick="closeApiResponseModal()">&times;</span>
+            </div>
+            <div id="apiResponseContent" class="bg-gray-900 p-4 rounded-lg max-h-96 overflow-y-auto font-mono text-sm"></div>
+            <button onclick="closeApiResponseModal()" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg transition mt-4">Close</button>
         </div>
     </div>
 
@@ -63,6 +76,32 @@
                 <div id="leaveUsersList" class="max-h-60 overflow-y-auto"></div>
             </div>
             <button onclick="closeLeaveModal()" class="w-full bg-gray-700 hover:bg-gray-600 py-2 rounded-lg transition">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Create Group Modal (for API demo) -->
+    <div id="apiCreateModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Create Study Group</h3>
+                <span class="close-btn" onclick="closeApiCreateModal()">&times;</span>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Group Name (5-30 chars)</label>
+                    <input type="text" id="apiGroupName" maxlength="30" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm" placeholder="e.g. Math Study">
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-400 mb-2">Subject</label>
+                    <select id="apiGroupSubject" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm">
+                        <option value="Math">Math</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Physics">Physics</option>
+                    </select>
+                </div>
+                <button onclick="apiCreateGroup()" class="w-full bg-green-600 hover:bg-green-700 py-2 rounded-lg transition">Create Group</button>
+                <button onclick="closeApiCreateModal()" class="w-full bg-gray-700 hover:bg-gray-600 py-2 rounded-lg transition">Cancel</button>
+            </div>
         </div>
     </div>
 
@@ -158,7 +197,7 @@ GET    /studygroup/debug/query-m-users</pre>
 
         <!-- Tab Content -->
         <div id="tab-content">
-            <!-- GROUPS TAB -->
+            <!-- GROUPS TAB (same as before) -->
             <div id="groups-tab" class="tab-pane">
                 <div class="grid lg:grid-cols-3 gap-6">
                     <!-- Left: Create Form + Filters -->
@@ -297,7 +336,7 @@ GET    /studygroup/debug/query-m-users</pre>
                 <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
                     <h2 class="text-xl font-semibold mb-6"><i class="fas fa-vial mr-2 text-blue-400"></i>18 Test Cases for Quality Assurance</h2>
                     <div class="grid md:grid-cols-2 gap-4 text-sm max-h-[600px] overflow-y-auto pr-2">
-                        <!-- Test Case 1 - SIMPLIFIED: Always works -->
+                        <!-- Test Case 1 -->
                         <div class="bg-gray-800/50 p-4 rounded-xl border border-blue-500/30">
                             <span class="text-blue-400 font-bold">1.</span> Create "Math Study" (Math) ✅ 
                             <button onclick="tryTestCase1()" class="text-xs bg-green-600 hover:bg-green-700 px-3 py-1 rounded ml-2 transition">Try it</button>
@@ -393,52 +432,95 @@ GET    /studygroup/debug/query-m-users</pre>
                 </div>
             </div>
 
-            <!-- API REFERENCE TAB -->
+            <!-- INTERACTIVE API REFERENCE TAB -->
             <div id="api-tab" class="tab-pane hidden">
                 <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
-                    <h2 class="text-xl font-semibold mb-6"><i class="fas fa-code mr-2 text-blue-400"></i>API Reference</h2>
+                    <h2 class="text-xl font-semibold mb-6"><i class="fas fa-code mr-2 text-blue-400"></i>Interactive API Reference</h2>
+                    <p class="text-sm text-gray-400 mb-6">Click any "Try it" button to see the API in action</p>
+                    
                     <div class="space-y-4">
+                        <!-- POST /create -->
                         <div class="bg-gray-800 p-4 rounded-xl">
-                            <div class="flex items-center gap-3">
-                                <span class="bg-green-600 text-xs px-2 py-1 rounded">POST</span>
-                                <code class="text-sm">/studygroup/create</code>
+                            <div class="flex items-center justify-between flex-wrap gap-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="bg-green-600 text-xs px-2 py-1 rounded">POST</span>
+                                    <code class="text-sm">/studygroup/create</code>
+                                </div>
+                                <button onclick="openApiCreateModal()" class="bg-blue-600 hover:bg-blue-700 text-xs px-4 py-2 rounded-lg transition flex items-center gap-2">
+                                    <i class="fas fa-play"></i> Try it
+                                </button>
                             </div>
-                            <p class="text-gray-400 text-sm mt-2">Create new study group</p>
+                            <p class="text-gray-400 text-sm mt-2">Create a new study group</p>
                         </div>
+
+                        <!-- GET /all -->
                         <div class="bg-gray-800 p-4 rounded-xl">
-                            <div class="flex items-center gap-3">
-                                <span class="bg-blue-600 text-xs px-2 py-1 rounded">GET</span>
-                                <code class="text-sm">/studygroup/all?sort=desc</code>
+                            <div class="flex items-center justify-between flex-wrap gap-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="bg-blue-600 text-xs px-2 py-1 rounded">GET</span>
+                                    <code class="text-sm">/studygroup/all?sort=desc</code>
+                                </div>
+                                <button onclick="apiGetAllGroups()" class="bg-blue-600 hover:bg-blue-700 text-xs px-4 py-2 rounded-lg transition flex items-center gap-2">
+                                    <i class="fas fa-play"></i> Try it
+                                </button>
                             </div>
-                            <p class="text-gray-400 text-sm mt-2">Get all groups, sorted by date</p>
+                            <p class="text-gray-400 text-sm mt-2">Get all groups (newest first)</p>
                         </div>
+
+                        <!-- GET /search -->
                         <div class="bg-gray-800 p-4 rounded-xl">
-                            <div class="flex items-center gap-3">
-                                <span class="bg-blue-600 text-xs px-2 py-1 rounded">GET</span>
-                                <code class="text-sm">/studygroup/search?subject=Math&sort=desc</code>
+                            <div class="flex items-center justify-between flex-wrap gap-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="bg-blue-600 text-xs px-2 py-1 rounded">GET</span>
+                                    <code class="text-sm">/studygroup/search?subject=Math</code>
+                                </div>
+                                <button onclick="apiSearchMath()" class="bg-blue-600 hover:bg-blue-700 text-xs px-4 py-2 rounded-lg transition flex items-center gap-2">
+                                    <i class="fas fa-play"></i> Try it
+                                </button>
                             </div>
-                            <p class="text-gray-400 text-sm mt-2">Filter by subject</p>
+                            <p class="text-gray-400 text-sm mt-2">Search for Math groups</p>
                         </div>
+
+                        <!-- POST /join -->
                         <div class="bg-gray-800 p-4 rounded-xl">
-                            <div class="flex items-center gap-3">
-                                <span class="bg-green-600 text-xs px-2 py-1 rounded">POST</span>
-                                <code class="text-sm">/studygroup/join?studyGroupId=1&userId=100</code>
+                            <div class="flex items-center justify-between flex-wrap gap-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="bg-green-600 text-xs px-2 py-1 rounded">POST</span>
+                                    <code class="text-sm">/studygroup/join</code>
+                                </div>
+                                <button onclick="apiShowJoin()" class="bg-blue-600 hover:bg-blue-700 text-xs px-4 py-2 rounded-lg transition flex items-center gap-2">
+                                    <i class="fas fa-play"></i> Try it
+                                </button>
                             </div>
-                            <p class="text-gray-400 text-sm mt-2">Join a group</p>
+                            <p class="text-gray-400 text-sm mt-2">Join a group (shows available users)</p>
                         </div>
+
+                        <!-- POST /leave -->
                         <div class="bg-gray-800 p-4 rounded-xl">
-                            <div class="flex items-center gap-3">
-                                <span class="bg-green-600 text-xs px-2 py-1 rounded">POST</span>
-                                <code class="text-sm">/studygroup/leave?studyGroupId=1&userId=100</code>
+                            <div class="flex items-center justify-between flex-wrap gap-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="bg-green-600 text-xs px-2 py-1 rounded">POST</span>
+                                    <code class="text-sm">/studygroup/leave</code>
+                                </div>
+                                <button onclick="apiShowLeave()" class="bg-blue-600 hover:bg-blue-700 text-xs px-4 py-2 rounded-lg transition flex items-center gap-2">
+                                    <i class="fas fa-play"></i> Try it
+                                </button>
                             </div>
                             <p class="text-gray-400 text-sm mt-2">Leave a group</p>
                         </div>
+
+                        <!-- GET /m-users -->
                         <div class="bg-gray-800 p-4 rounded-xl">
-                            <div class="flex items-center gap-3">
-                                <span class="bg-purple-600 text-xs px-2 py-1 rounded">GET</span>
-                                <code class="text-sm">/studygroup/debug/query-m-users</code>
+                            <div class="flex items-center justify-between flex-wrap gap-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="bg-purple-600 text-xs px-2 py-1 rounded">GET</span>
+                                    <code class="text-sm">/studygroup/debug/query-m-users</code>
+                                </div>
+                                <button onclick="apiShowMUsers()" class="bg-blue-600 hover:bg-blue-700 text-xs px-4 py-2 rounded-lg transition flex items-center gap-2">
+                                    <i class="fas fa-play"></i> Try it
+                                </button>
                             </div>
-                            <p class="text-gray-400 text-sm mt-2">Groups with M-users</p>
+                            <p class="text-gray-400 text-sm mt-2">Find groups with users whose name starts with 'M'</p>
                         </div>
                     </div>
                 </div>
@@ -466,6 +548,14 @@ GET    /studygroup/debug/query-m-users</pre>
             document.getElementById('alertModal').style.display = 'block';
         }
         function closeAlertModal() { document.getElementById('alertModal').style.display = 'none'; }
+
+        // API Response Modal functions
+        function showApiResponse(title, content) {
+            document.getElementById('apiResponseTitle').innerText = title;
+            document.getElementById('apiResponseContent').innerHTML = content;
+            document.getElementById('apiResponseModal').style.display = 'block';
+        }
+        function closeApiResponseModal() { document.getElementById('apiResponseModal').style.display = 'none'; }
 
         // Modal variables
         let currentGroupId = null;
@@ -555,27 +645,125 @@ GET    /studygroup/debug/query-m-users</pre>
             }
         }
 
+        // API Create Modal
+        function openApiCreateModal() {
+            document.getElementById('apiCreateModal').style.display = 'block';
+        }
+        function closeApiCreateModal() {
+            document.getElementById('apiCreateModal').style.display = 'none';
+        }
+
+        function apiCreateGroup() {
+            const name = document.getElementById('apiGroupName').value.trim();
+            const subject = document.getElementById('apiGroupSubject').value;
+            
+            if (name.length < 5 || name.length > 30) {
+                showAlert('Name must be 5-30 characters', 'Invalid');
+                return;
+            }
+            
+            const groups = getGroups();
+            const nextId = parseInt(localStorage.getItem('nextGroupId') || '4');
+            
+            const newGroup = {
+                studyGroupId: nextId,
+                name: name,
+                subject: subject,
+                createDate: new Date().toISOString(),
+                users: []
+            };
+            
+            groups.push(newGroup);
+            saveGroups(groups);
+            localStorage.setItem('nextGroupId', (nextId + 1).toString());
+            
+            closeApiCreateModal();
+            document.getElementById('apiGroupName').value = '';
+            showAlert(`✅ Group "${name}" created!`, 'Success');
+            renderGroups();
+        }
+
+        function apiGetAllGroups() {
+            const groups = getGroups();
+            const users = getUsers();
+            
+            let html = '<div class="space-y-2">';
+            groups.sort((a, b) => new Date(b.createDate) - new Date(a.createDate)).forEach(g => {
+                const members = g.users.map(uid => users.find(u => u.id === uid)?.name || '?').join(', ') || 'none';
+                html += `<div class="border-b border-gray-700 pb-2">
+                    <div class="font-bold">${g.name} (${g.subject})</div>
+                    <div class="text-xs text-gray-400">Created: ${new Date(g.createDate).toLocaleDateString()}</div>
+                    <div class="text-xs text-gray-400">Members: ${members}</div>
+                </div>`;
+            });
+            html += '</div>';
+            
+            showApiResponse('GET /studygroup/all - Results', html);
+        }
+
+        function apiSearchMath() {
+            const groups = getGroups().filter(g => g.subject === 'Math');
+            const users = getUsers();
+            
+            if (groups.length === 0) {
+                showApiResponse('GET /studygroup/search?subject=Math', '<p class="text-gray-400">No Math groups found</p>');
+                return;
+            }
+            
+            let html = '<div class="space-y-2">';
+            groups.forEach(g => {
+                const members = g.users.map(uid => users.find(u => u.id === uid)?.name || '?').join(', ') || 'none';
+                html += `<div class="border-b border-gray-700 pb-2">
+                    <div class="font-bold">${g.name}</div>
+                    <div class="text-xs text-gray-400">Created: ${new Date(g.createDate).toLocaleDateString()}</div>
+                    <div class="text-xs text-gray-400">Members: ${members}</div>
+                </div>`;
+            });
+            html += '</div>';
+            
+            showApiResponse('GET /studygroup/search?subject=Math - Results', html);
+        }
+
+        function apiShowJoin() {
+            closeApiResponseModal();
+            // Switch to Groups tab and highlight the first group's join button
+            document.getElementById('tab-groups').click();
+            showAlert('Click the "Join" button on any group to try the API', 'Try it!');
+        }
+
+        function apiShowLeave() {
+            closeApiResponseModal();
+            document.getElementById('tab-groups').click();
+            showAlert('Click the "Leave" button on any group to try the API', 'Try it!');
+        }
+
+        function apiShowMUsers() {
+            document.getElementById('tab-mquery').click();
+        }
+
         window.onclick = function(e) {
             if (e.target == document.getElementById('helpModal')) closeHelp();
             if (e.target == document.getElementById('joinModal')) closeJoinModal();
             if (e.target == document.getElementById('leaveModal')) closeLeaveModal();
             if (e.target == document.getElementById('alertModal')) closeAlertModal();
+            if (e.target == document.getElementById('apiResponseModal')) closeApiResponseModal();
+            if (e.target == document.getElementById('apiCreateModal')) closeApiCreateModal();
         }
 
         // SUPER SIMPLE Try button - always works!
         function tryTestCase1() {
             const groups = getGroups();
             
-            // 1. Find and delete any existing "Math Study" group
+            // Find and delete any existing "Math Study" group
             const existingGroupIndex = groups.findIndex(g => g.name === 'Math Study' && g.subject === 'Math');
             if (existingGroupIndex !== -1) {
                 groups.splice(existingGroupIndex, 1);
             }
             
-            // 2. Get next available ID
+            // Get next available ID
             const nextId = parseInt(localStorage.getItem('nextGroupId') || '4');
             
-            // 3. Create new group
+            // Create new group
             const newGroup = {
                 studyGroupId: nextId,
                 name: 'Math Study',
@@ -588,7 +776,7 @@ GET    /studygroup/debug/query-m-users</pre>
             saveGroups(groups);
             localStorage.setItem('nextGroupId', (nextId + 1).toString());
             
-            // 4. Switch to Groups tab and show success
+            // Switch to Groups tab and show success
             document.getElementById('tab-groups').click();
             renderGroups();
             showAlert('✅ New "Math Study" group created!', 'Success');
