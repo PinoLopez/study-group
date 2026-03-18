@@ -20,6 +20,8 @@
         .api-demo { background: #1a1f2e; border-radius: 12px; padding: 16px; margin-top: 12px; font-family: monospace; }
         .success-message { color: #10b981; }
         .error-message { color: #ef4444; }
+        .m-highlight { color: #ef4444; font-weight: bold; }
+        .m-name { color: #ef4444; font-weight: 600; }
     </style>
 </head>
 <body class="bg-gray-950 text-white font-sans antialiased">
@@ -184,7 +186,7 @@ GET    /studygroup/debug/query-m-users</pre>
                     <i class="fas fa-user mr-2"></i>Users
                 </button>
                 <button id="tab-mquery" class="tab-btn px-1 py-3 text-gray-400 hover:text-white font-medium text-sm uppercase tracking-wider" data-tab="mquery">
-                    <i class="fas fa-magnifying-glass mr-2"></i>M‑Users Query
+                    <i class="fas fa-magnifying-glass mr-2"></i><span class="m-highlight">M</span>‑Users Query
                 </button>
                 <button id="tab-testcases" class="tab-btn px-1 py-3 text-gray-400 hover:text-white font-medium text-sm uppercase tracking-wider" data-tab="testcases">
                     <i class="fas fa-vial mr-2"></i>Test Cases
@@ -311,22 +313,29 @@ GET    /studygroup/debug/query-m-users</pre>
                 </div>
             </div>
 
-            <!-- M‑USERS QUERY TAB -->
+            <!-- IMPROVED M‑USERS QUERY TAB -->
             <div id="mquery-tab" class="tab-pane hidden">
                 <div class="bg-gray-900 rounded-2xl p-6 border border-gray-800">
                     <div class="flex items-center gap-3 mb-6">
-                        <div class="bg-purple-600/20 p-3 rounded-xl">
-                            <i class="fas fa-database text-purple-400 text-xl"></i>
+                        <div class="bg-red-600/20 p-3 rounded-xl">
+                            <i class="fas fa-database text-red-400 text-xl"></i>
                         </div>
                         <div>
-                            <h2 class="text-xl font-semibold">Groups with users whose name starts with 'M'</h2>
-                            <p class="text-sm text-gray-400">Shows groups containing Miguel, Manuel, or Maria</p>
+                            <h2 class="text-2xl font-semibold">Groups with users with names starting with the letter '<span class="m-highlight text-3xl">M</span>'</h2>
+                            <p class="text-gray-400 mt-1">Shows groups containing names such as: <span class="m-name">Miguel</span>, <span class="m-name">Manuel</span>, or <span class="m-name">Maria</span></p>
+                            <p class="text-xs text-gray-500 mt-2">SQL equivalent: <span class="font-mono bg-gray-800 px-2 py-1 rounded">SELECT * FROM StudyGroups WHERE EXISTS (SELECT 1 FROM Users WHERE name LIKE 'M%')</span></p>
                         </div>
                     </div>
+                    
+                    <div class="bg-gray-800/30 p-4 rounded-xl mb-4">
+                        <p class="text-sm text-gray-300"><i class="fas fa-info-circle text-blue-400 mr-2"></i>Users with names starting with <span class="m-highlight">M</span> are shown in <span class="m-name">red</span> below:</p>
+                    </div>
+                    
                     <div id="mQueryResults" class="space-y-3"></div>
                     <div id="noMResults" class="text-center py-12 text-gray-600 hidden">
                         <i class="fas fa-search text-4xl mb-2"></i>
-                        <p>No groups with users starting with 'M'</p>
+                        <p>No groups with users starting with '<span class="m-highlight">M</span>'</p>
+                        <p class="text-xs mt-2">Try adding a user like Miguel, Manuel, or Maria</p>
                     </div>
                 </div>
             </div>
@@ -423,10 +432,10 @@ GET    /studygroup/debug/query-m-users</pre>
                             <p class="text-gray-400 text-xs mt-1">Apply filter and sort together</p>
                         </div>
                         <!-- Test Case 18 -->
-                        <div class="bg-gray-800/50 p-4 rounded-xl col-span-2">
-                            <span class="text-blue-400 font-bold">18.</span> M-users query 
+                        <div class="bg-gray-800/50 p-4 rounded-xl col-span-2 border border-red-500/30">
+                            <span class="text-blue-400 font-bold">18.</span> <span class="m-highlight">M</span>-users query 
                             <button onclick="document.getElementById('tab-mquery').click()" class="text-xs bg-purple-600 hover:bg-purple-700 px-3 py-1 rounded ml-2 transition">Go to query</button>
-                            <p class="text-gray-400 text-xs mt-1">Shows groups with Miguel, Manuel, or Maria</p>
+                            <p class="text-gray-400 text-xs mt-1">Shows groups with <span class="m-name">Miguel</span>, <span class="m-name">Manuel</span>, or <span class="m-name">Maria</span></p>
                         </div>
                     </div>
                 </div>
@@ -510,17 +519,17 @@ GET    /studygroup/debug/query-m-users</pre>
                         </div>
 
                         <!-- GET /m-users -->
-                        <div class="bg-gray-800 p-4 rounded-xl">
+                        <div class="bg-gray-800 p-4 rounded-xl border border-red-500/30">
                             <div class="flex items-center justify-between flex-wrap gap-3">
                                 <div class="flex items-center gap-3">
                                     <span class="bg-purple-600 text-xs px-2 py-1 rounded">GET</span>
-                                    <code class="text-sm">/studygroup/debug/query-m-users</code>
+                                    <code class="text-sm">/studygroup/debug/query-<span class="m-highlight">m</span>-users</code>
                                 </div>
                                 <button onclick="apiShowMUsers()" class="bg-blue-600 hover:bg-blue-700 text-xs px-4 py-2 rounded-lg transition flex items-center gap-2">
                                     <i class="fas fa-play"></i> Try it
                                 </button>
                             </div>
-                            <p class="text-gray-400 text-sm mt-2">Find groups with users whose name starts with 'M'</p>
+                            <p class="text-gray-400 text-sm mt-2">Find groups with users whose name starts with '<span class="m-highlight">M</span>' (like <span class="m-name">Miguel</span>, <span class="m-name">Manuel</span>)</p>
                         </div>
                     </div>
                 </div>
@@ -577,9 +586,10 @@ GET    /studygroup/debug/query-m-users</pre>
             let html = '';
             users.forEach(user => {
                 const isInGroup = group.users.includes(user.id);
+                const nameClass = user.name.startsWith('M') ? 'm-name' : '';
                 html += `<div class="user-btn ${isInGroup ? 'opacity-50 cursor-not-allowed' : ''}" 
                     onclick="${isInGroup ? '' : `selectUser(${user.id})`}">
-                    ${user.name} ${isInGroup ? '(already in group)' : ''}
+                    <span class="${nameClass}">${user.name}</span> ${isInGroup ? '(already in group)' : ''}
                 </div>`;
             });
             document.getElementById('joinUsersList').innerHTML = html;
@@ -602,7 +612,8 @@ GET    /studygroup/debug/query-m-users</pre>
                 group.users.forEach(uid => {
                     const user = users.find(u => u.id === uid);
                     if (user) {
-                        html += `<div class="user-btn" onclick="selectUser(${user.id})">${user.name}</div>`;
+                        const nameClass = user.name.startsWith('M') ? 'm-name' : '';
+                        html += `<div class="user-btn" onclick="selectUser(${user.id})"><span class="${nameClass}">${user.name}</span></div>`;
                     }
                 });
                 document.getElementById('leaveUsersList').innerHTML = html;
@@ -689,7 +700,10 @@ GET    /studygroup/debug/query-m-users</pre>
             
             let html = '<div class="space-y-2">';
             groups.sort((a, b) => new Date(b.createDate) - new Date(a.createDate)).forEach(g => {
-                const members = g.users.map(uid => users.find(u => u.id === uid)?.name || '?').join(', ') || 'none';
+                const members = g.users.map(uid => {
+                    const user = users.find(u => u.id === uid);
+                    return user ? (user.name.startsWith('M') ? `<span class="m-name">${user.name}</span>` : user.name) : '?';
+                }).join(', ') || 'none';
                 html += `<div class="border-b border-gray-700 pb-2">
                     <div class="font-bold">${g.name} (${g.subject})</div>
                     <div class="text-xs text-gray-400">Created: ${new Date(g.createDate).toLocaleDateString()}</div>
@@ -712,7 +726,10 @@ GET    /studygroup/debug/query-m-users</pre>
             
             let html = '<div class="space-y-2">';
             groups.forEach(g => {
-                const members = g.users.map(uid => users.find(u => u.id === uid)?.name || '?').join(', ') || 'none';
+                const members = g.users.map(uid => {
+                    const user = users.find(u => u.id === uid);
+                    return user ? (user.name.startsWith('M') ? `<span class="m-name">${user.name}</span>` : user.name) : '?';
+                }).join(', ') || 'none';
                 html += `<div class="border-b border-gray-700 pb-2">
                     <div class="font-bold">${g.name}</div>
                     <div class="text-xs text-gray-400">Created: ${new Date(g.createDate).toLocaleDateString()}</div>
@@ -726,7 +743,6 @@ GET    /studygroup/debug/query-m-users</pre>
 
         function apiShowJoin() {
             closeApiResponseModal();
-            // Switch to Groups tab and highlight the first group's join button
             document.getElementById('tab-groups').click();
             showAlert('Click the "Join" button on any group to try the API', 'Try it!');
         }
@@ -846,7 +862,10 @@ GET    /studygroup/debug/query-m-users</pre>
                 countSpan.innerText = groups.length + ' group' + (groups.length > 1 ? 's' : '');
                 let html = '';
                 groups.forEach(g => {
-                    const memberNames = g.users.map(uid => users.find(u => u.id === uid)?.name || '?').join(', ') || 'none';
+                    const memberNames = g.users.map(uid => {
+                        const user = users.find(u => u.id === uid);
+                        return user ? (user.name.startsWith('M') ? `<span class="m-name">${user.name}</span>` : user.name) : '?';
+                    }).join(', ') || 'none';
                     html += `
                         <div class="bg-gray-800/70 rounded-xl p-4 border border-gray-700 fade-in">
                             <div class="flex justify-between items-start">
@@ -875,7 +894,8 @@ GET    /studygroup/debug/query-m-users</pre>
             const users = getUsers();
             let html = '';
             users.forEach(u => {
-                html += `<div class="bg-gray-800/50 rounded-lg p-3 flex items-center justify-between"><span><i class="fas fa-user text-gray-500 mr-2"></i>${u.name}</span><span class="text-xs text-gray-500">ID: ${u.id}</span></div>`;
+                const nameClass = u.name.startsWith('M') ? 'm-name' : '';
+                html += `<div class="bg-gray-800/50 rounded-lg p-3 flex items-center justify-between"><span><i class="fas fa-user text-gray-500 mr-2"></i><span class="${nameClass}">${u.name}</span></span><span class="text-xs text-gray-500">ID: ${u.id}</span></div>`;
             });
             document.getElementById('usersList').innerHTML = html;
             updateStats();
@@ -896,8 +916,15 @@ GET    /studygroup/debug/query-m-users</pre>
                 noMsg.classList.add('hidden');
                 let html = '';
                 resultGroups.forEach(g => {
-                    const members = g.users.map(uid => users.find(u => u.id === uid)?.name || '?').join(', ');
-                    html += `<div class="bg-gray-800/70 rounded-xl p-4 border border-gray-700"><div class="font-semibold">${g.name} (${g.subject})</div><div class="text-sm text-gray-400 mt-1">Members: ${members}</div><div class="text-xs text-gray-500 mt-1">Created: ${new Date(g.createDate).toLocaleDateString()}</div></div>`;
+                    const members = g.users.map(uid => {
+                        const user = users.find(u => u.id === uid);
+                        return user ? (user.name.startsWith('M') ? `<span class="m-name">${user.name}</span>` : user.name) : '?';
+                    }).join(', ');
+                    html += `<div class="bg-gray-800/70 rounded-xl p-4 border border-gray-700">
+                        <div class="font-semibold">${g.name} (${g.subject})</div>
+                        <div class="text-sm text-gray-400 mt-1">Members: ${members}</div>
+                        <div class="text-xs text-gray-500 mt-1">Created: ${new Date(g.createDate).toLocaleDateString()}</div>
+                    </div>`;
                 });
                 container.innerHTML = html;
             }
