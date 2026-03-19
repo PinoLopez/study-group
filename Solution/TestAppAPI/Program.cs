@@ -3,39 +3,31 @@ using TestAppAPI;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite("Data Source=:memory:;")); // in-memory for recruiters
+
+builder.Services.AddScoped<IStudyGroupRepository, StudyGroupRepository>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// ALWAYS use SQLite (perfect for Railway volume)
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=studygroups.db"));
-
-builder.Services.AddScoped<IStudyGroupRepository, StudyGroupRepository>();
-
-// Railway PORT handling (required for cloud)
-var port = Environment.GetEnvironmentVariable("PORT");
-if (!string.IsNullOrEmpty(port))
-{
-    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
-}
-
 var app = builder.Build();
 
-// Auto-create DB + run migrations on startup
-using (var scope = app.Services.CreateScope())
+if (app.Environment.IsDevelopment())
 {
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
-// Static files for the nice landing page + Swagger in production
-app.UseStaticFiles();
-app.UseSwagger();
-app.UseSwaggerUI();
-
 app.UseHttpsRedirection();
-app.UseAuthorization();
 app.MapControllers();
+
+// Seed sample data
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    context.Database.EnsureCreated();
+    // (sample seed is in tests — optional here)
+}
 
 app.Run();

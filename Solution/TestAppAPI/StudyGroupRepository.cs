@@ -63,7 +63,7 @@ namespace TestAppAPI
             var group = await _context.StudyGroups
                 .Include(s => s.Users)
                 .FirstOrDefaultAsync(g => g.StudyGroupId == studyGroupId);
-            
+
             var user = await _context.Users
                 .Include(u => u.StudyGroups)
                 .FirstOrDefaultAsync(u => u.Id == userId);
@@ -82,7 +82,7 @@ namespace TestAppAPI
             var group = await _context.StudyGroups
                 .Include(s => s.Users)
                 .FirstOrDefaultAsync(g => g.StudyGroupId == studyGroupId);
-            
+
             var user = await _context.Users
                 .Include(u => u.StudyGroups)
                 .FirstOrDefaultAsync(u => u.Id == userId);
@@ -96,41 +96,22 @@ namespace TestAppAPI
             await _context.SaveChangesAsync();
         }
 
-        // QUERY FOR DEBUG ENDPOINT 
+        // SQL equivalent:
+        //   SELECT * FROM StudyGroups
+        //   WHERE EXISTS (
+        //       SELECT 1 FROM StudyGroupUsers su
+        //       JOIN Users u ON u.Id = su.UsersId
+        //       WHERE su.StudyGroupsStudyGroupId = StudyGroups.StudyGroupId
+        //       AND u.Name LIKE 'M%'
+        //   )
+        //   ORDER BY CreateDate ASC;
         public async Task<List<StudyGroup>> GetStudyGroupsWithUsersNamedStartingWithM()
         {
-            var mockStudyGroups = new List<StudyGroup>
-            {
-                new StudyGroup(
-                    studyGroupId: 1,
-                    name: "Math Study Club",
-                    subject: Subject.Math,
-                    createDate: DateTime.UtcNow.AddDays(-2),
-                    users: new List<User>
-                    {
-                        new User(1, "Miguel Perez"),
-                        new User(2, "Manuel Pino")
-                    }
-                ),
-                new StudyGroup(
-                    studyGroupId: 2,
-                    name: "Physics Fundamentals",
-                    subject: Subject.Physics,
-                    createDate: DateTime.UtcNow.AddDays(-1),
-                    users: new List<User>
-                    {
-                        new User(3, "Celine Johnson"),
-                        new User(4, "Antonio Torres")
-                    }
-                )
-            };
-
-            var filtered = mockStudyGroups
-                .Where(sg => sg.Users.Any(u => u.Name.StartsWith("M", StringComparison.OrdinalIgnoreCase)))
-                .OrderBy(sg => sg.CreateDate)
-                .ToList();
-
-            return await Task.FromResult(filtered);
+            return await _context.StudyGroups
+                .Include(s => s.Users)
+                .Where(s => s.Users.Any(u => u.Name.StartsWith("M")))
+                .OrderBy(s => s.CreateDate)
+                .ToListAsync();
         }
     }
 }
